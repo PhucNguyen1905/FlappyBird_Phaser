@@ -35,19 +35,20 @@ export class PlayScene extends Phaser.Scene {
         this.bird = this.physics.add.sprite(Constants.BIRD_START_X, Constants.BIRD_START_Y, 'bird');
         this.bird.setOrigin(0);
         this.bird.body.gravity.y = 200;
+        this.bird.setCollideWorldBounds(true);
 
     }
     createPipes() {
         // Pipe
         for (let i = 0; i < 4; i++) {
-            const topPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0, 1);
-            const botPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0);
+            const topPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0, 1).setImmovable(true);
+            const botPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0).setImmovable(true);
             this.genPipePos(topPipe, botPipe)
         }
         this.pipes.setVelocityX(-200);
     }
     createCollider() {
-        this.physics.add.collider(this.bird, this.pipes);
+        this.physics.add.collider(this.bird, this.pipes, this.gameOver, undefined, this);
     }
 
     inputHandler() {
@@ -60,13 +61,15 @@ export class PlayScene extends Phaser.Scene {
     }
 
     resetBird() {
-        this.bird.x = Constants.BIRD_START_X;
-        this.bird.y = Constants.BIRD_START_Y;
-        this.bird.body.velocity.y = 0;
+        // this.bird.x = Constants.BIRD_START_X;
+        // this.bird.y = Constants.BIRD_START_Y;
+        // this.bird.body.velocity.y = 0;
+        this.physics.pause();
+        this.bird.setTint(0xD61C4E);
     }
     update(time: number, delta: number): void {
-        if (this.bird.y >= Constants.CANVAS_H || this.bird.y <= 0) {
-            this.resetBird();
+        if (this.bird.getBounds().bottom >= Constants.CANVAS_H || this.bird.y <= 0) {
+            this.gameOver();
         }
         this.recylePipes();
     }
@@ -102,5 +105,9 @@ export class PlayScene extends Phaser.Scene {
         topPipe.y = topPipeYPos;
         botPipe.x = mostRightPipeX + spaceBetPipeX;
         botPipe.y = topPipeYPos + spaceBetPipeY;
+    }
+
+    gameOver() {
+        this.resetBird();
     }
 }
