@@ -1,26 +1,17 @@
 import 'phaser';
+import { PlayScene } from './Scenes/PlayScene';
+import { Constants } from './Contants';
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: Constants.CANVAS_W,
+    height: Constants.CANVAS_H,
     physics: {
         default: 'arcade'
     },
-    scene: {
-        preload: preload,
-        create: create
-    }
+    scene: [PlayScene]
 }
 
-// Loading assets: images, music, animations,...
-function preload() {
-    debugger
-}
+new Phaser.Game(config)
 
-// 
-function create() {
-    debugger
-}
 
-new Phaser.Game(config);
