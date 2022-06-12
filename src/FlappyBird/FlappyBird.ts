@@ -1,6 +1,8 @@
 import 'phaser';
 import { PlayScene } from './Scenes/PlayScene';
 import { Constants } from './Contants';
+import { MenuScene } from './Scenes/MenuScene';
+import { StartScene } from './Scenes/StartScene';
 
 const config = {
     type: Phaser.AUTO,
@@ -9,7 +11,7 @@ const config = {
     physics: {
         default: 'arcade'
     },
-    scene: [PlayScene]
+    scene: [StartScene, MenuScene, PlayScene]
 }
 
 new Phaser.Game(config)
