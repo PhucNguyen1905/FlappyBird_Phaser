@@ -6,9 +6,10 @@ export class StartScene extends Phaser.Scene {
         super('StartScene');
     }
     preload() {
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('bird', 'assets/bird.png');
-        this.load.image('pipe', 'assets/pipe.png');
+        this.load.image('background', 'assets/bg.png');
+        this.load.image('bird', 'assets/bird1.png');
+        this.load.image('pipe_up', 'assets/pipe_up.png');
+        this.load.image('pipe_down', 'assets/pipe_down.png');
         this.load.image('pause', 'assets/pause.png');
     }
     create() {

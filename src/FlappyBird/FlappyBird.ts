@@ -9,7 +9,10 @@ const config = {
     width: Constants.CANVAS_W,
     height: Constants.CANVAS_H,
     physics: {
-        default: 'arcade'
+        default: 'arcade',
+        arcade: {
+            debug: true
+        }
     },
     scene: [StartScene, MenuScene, PlayScene]
 }

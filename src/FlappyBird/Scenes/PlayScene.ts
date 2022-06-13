@@ -26,23 +26,22 @@ export class PlayScene extends Phaser.Scene {
 
     createBackground() {
         // Background
-        this.bg = this.add.image(0, 0, 'sky');
+        this.bg = this.add.image(0, 0, 'background');
         this.bg.setOrigin(0, 0)
+        this.bg.setSize(1000, 500);
     }
     createBird() {
-
-        // Bird
         this.bird = this.physics.add.sprite(Constants.BIRD_START_X, Constants.BIRD_START_Y, 'bird');
         this.bird.setOrigin(0);
+        this.bird.setDisplaySize(80, 70);
         this.bird.body.gravity.y = 600;
         this.bird.setCollideWorldBounds(true);
 
     }
     createPipes() {
-        // Pipe
         for (let i = 0; i < 4; i++) {
-            const topPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0, 1).setImmovable(true);
-            const botPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0).setImmovable(true);
+            const topPipe = this.pipes.create(0, 0, 'pipe_down').setOrigin(0, 1).setImmovable(true);
+            const botPipe = this.pipes.create(0, 0, 'pipe_up').setOrigin(0).setImmovable(true);
             this.genPipePos(topPipe, botPipe)
         }
         this.pipes.setVelocityX(-200);
@@ -112,8 +111,8 @@ export class PlayScene extends Phaser.Scene {
     }
 
     genPipePos(topPipe: any, botPipe: any) {
-        let spaceBetPipeY = Phaser.Math.Between(150, 250);
-        let topPipeYPos = Phaser.Math.Between(0 + 30, Constants.CANVAS_H - 30 - spaceBetPipeY);
+        let spaceBetPipeY = Phaser.Math.Between(160, 200);
+        let topPipeYPos = Phaser.Math.Between(50, Constants.CANVAS_H - spaceBetPipeY - 120);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
         let mostRightPipeX = this.getMostRightPipeX();
 

@@ -2,7 +2,7 @@ import 'phaser';
 import { Constants } from '../Contants';
 
 export class MenuScene extends Phaser.Scene {
-    bg!: Phaser.GameObjects.Image;
+    bg!: Phaser.GameObjects.TileSprite;
     menuItems: {}[];
     fontStyle: {} = { fontSize: '30px', color: '#fff' };
     constructor() {
@@ -21,9 +21,12 @@ export class MenuScene extends Phaser.Scene {
         this.createMenu();
     }
     createBackground() {
-        // Background
-        this.bg = this.add.image(0, 0, 'sky');
-        this.bg.setOrigin(0, 0)
+        this.bg = this.add.tileSprite(0, 0, Constants.CANVAS_W, Constants.CANVAS_H, 'background');
+        this.bg.setOrigin(0, 0);
+    }
+
+    update(time: number, delta: number): void {
+        this.bg.tilePositionX += 1.2;
     }
 
     createMenu() {
