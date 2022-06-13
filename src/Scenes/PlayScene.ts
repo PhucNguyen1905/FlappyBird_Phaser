@@ -1,22 +1,30 @@
-import 'phaser';
+import Phaser from "phaser";
 import { Constants } from '../Contants';
+import { Background } from '../GameObjects/ImgObjects/Background';
+import { Bird } from '../GameObjects/ImgObjects/Bird';
+import { Pipe } from '../GameObjects/ImgObjects/Pipe';
 
 export class PlayScene extends Phaser.Scene {
-    bg!: Phaser.GameObjects.Image;
-    bird!: Phaser.Physics.Arcade.Sprite;
-    pipes!: Phaser.Physics.Arcade.Group;
+    bg!: Background;
+    bird!: Bird;
+    pipes!: Phaser.GameObjects.Group;
     score: number = 0;
+    isFalling: boolean = false;
+    isOver: boolean = false;
+
     scoreText!: Phaser.GameObjects.Text;
     constructor() {
         super('PlayScene');
+    }
+    init() {
+        this.initBackground();
+        this.initBird();
     }
 
     preload() {
         this.pipes = this.physics.add.group();
     }
     create() {
-        this.createBackground();
-        this.createBird();
         this.createPipes();
         this.createScore();
         this.createPause();
@@ -24,37 +32,22 @@ export class PlayScene extends Phaser.Scene {
         this.inputHandler();
     }
 
-    createBackground() {
-        // Background
-        this.bg = this.add.image(0, 0, 'background');
-        this.bg.setOrigin(0, 0)
-        this.bg.setSize(1000, 500);
+    initBackground() {
+        this.bg = new Background({ scene: this, x: 0, y: 0, w: Constants.CANVAS_W, h: Constants.CANVAS_H, key: 'background' })
     }
-    createBird() {
-        this.bird = this.physics.add.sprite(Constants.BIRD_START_X, Constants.BIRD_START_Y, 'bird_sprites');
-        this.bird.setOrigin(0);
-        this.anims.create({
-            key: 'bird_anim',
-            frames: this.anims.generateFrameNumbers('bird_sprites', {
-                start: 0,
-                end: 16
-            }),
-            frameRate: 50,
-            repeat: -1
-        })
-        // this.bird.setDisplaySize(80, 70);
-        this.bird.body.gravity.y = 980;
-        this.bird.setCollideWorldBounds(true);
-        this.bird.play('bird_anim');
-
+    initBird() {
+        this.bird = new Bird({ scene: this, x: Constants.BIRD_START_X, y: Constants.BIRD_START_Y, key: 'bird_sprites' })
     }
     createPipes() {
+        this.pipes = this.add.group();
         for (let i = 0; i < 4; i++) {
-            const topPipe = this.pipes.create(0, 0, 'pipe_down').setOrigin(0, 1).setImmovable(true);
-            const botPipe = this.pipes.create(0, 0, 'pipe_up').setOrigin(0).setImmovable(true);
+            const topPipe = new Pipe({ scene: this, x: 0, y: 0, key: 'pipe_down', frame: 1 })
+            const botPipe = new Pipe({ scene: this, x: 0, y: 0, key: 'pipe_up', frame: 0 })
+
             this.genPipePos(topPipe, botPipe)
+            this.pipes.add(topPipe);
+            this.pipes.add(botPipe);
         }
-        this.pipes.setVelocityX(-200);
     }
     createScore() {
         const bestScore = localStorage.getItem('bestScore');
@@ -67,34 +60,53 @@ export class PlayScene extends Phaser.Scene {
             .setOrigin(1);
         pauseBtn.setInteractive();
         pauseBtn.on('pointerdown', () => {
-            console.log(123)
             this.physics.pause();
             this.scene.pause();
         })
     }
     createCollider() {
-        this.physics.add.collider(this.bird, this.pipes, this.gameOver, undefined, this);
+        this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
     }
 
     inputHandler() {
-        this.input.keyboard.on('keydown-SPACE', this.flap, this)
-        this.input.on('pointerdown', this.flap, this)
+        this.input.keyboard.on('keydown-SPACE', this.bird.flyUp, this.bird);
+        this.input.on('pointerdown', this.bird.flyUp, this.bird);
     }
 
-    flap() {
-        this.bird.body.velocity.y = -400;
-    }
-
-    resetBird() {
-        // this.bird.x = Constants.BIRD_START_X;
-        // this.bird.y = Constants.BIRD_START_Y;
-        // this.bird.body.velocity.y = 0;
-    }
     update(time: number, delta: number): void {
+        if (!this.isFalling && !this.isOver) {
+            this.checkGameStatus();
+            this.bird.update(delta);
+            this.recylePipes();
+            this.bg.update();
+
+        } else if (this.isFalling) {
+            this.bird.falling();
+            this.bird.update(delta);
+            this.checkReachGround();
+        } else {
+            this.isFalling = false;
+            this.isOver = false;
+            this.gameOver();
+        }
+    }
+
+    birdFalling() {
+        this.isFalling = true;
+        this.bird.setTint(0xD61C4E);
+        this.physics.world.disable(this.pipes)
+    }
+
+    checkGameStatus() {
         if (this.bird.getBounds().bottom >= Constants.CANVAS_H || this.bird.y <= 0) {
             this.gameOver();
         }
-        this.recylePipes();
+    }
+    checkReachGround() {
+        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
+            this.isFalling = false;
+            this.isOver = true;
+        }
     }
 
     getMostRightPipeX() {
@@ -105,7 +117,8 @@ export class PlayScene extends Phaser.Scene {
         return x;
     }
     recylePipes() {
-        let pair: any[] = [];
+        let pair: Pipe[] = [];
+
         this.pipes.getChildren().forEach((pipe: any) => {
             if (pipe.getBounds().right <= 0) {
                 pair.push(pipe);
@@ -120,7 +133,7 @@ export class PlayScene extends Phaser.Scene {
         })
     }
 
-    genPipePos(topPipe: any, botPipe: any) {
+    genPipePos(topPipe: Pipe, botPipe: Pipe) {
         let spaceBetPipeY = Phaser.Math.Between(160, 200);
         let topPipeYPos = Phaser.Math.Between(20, Constants.CANVAS_H - spaceBetPipeY - 80);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
@@ -144,10 +157,12 @@ export class PlayScene extends Phaser.Scene {
         this.physics.pause();
         this.bird.setTint(0xD61C4E);
         this.saveBestScore();
+        this.bird.reset();
         this.time.addEvent({
             delay: 1000,
             callback: () => {
                 this.scene.restart();
+                this.resetScore();
             },
             loop: false
         })
@@ -155,6 +170,10 @@ export class PlayScene extends Phaser.Scene {
 
     incScore() {
         this.score += 1;
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
+    resetScore() {
+        this.score = 0;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 }
