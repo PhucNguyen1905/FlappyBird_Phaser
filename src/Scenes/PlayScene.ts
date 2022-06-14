@@ -22,6 +22,7 @@ export class PlayScene extends Phaser.Scene {
     flapSound!: FlapSound;
     clickSound!: ClickSound;
     countTimeEvent!: Phaser.Time.TimerEvent;
+    onPauseEvent: boolean = false;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
 
     scoreText!: Phaser.GameObjects.Text;
@@ -37,6 +38,7 @@ export class PlayScene extends Phaser.Scene {
         this.isFalling = false;
         this.isOver = false;
         this.isPaused = false;
+        this.onPauseEvent = false;
     }
 
     preload() {
@@ -96,21 +98,29 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
     }
     listenOnEvents() {
+        if (this.onPauseEvent) return;
         this.events.on('resume', () => {
-            // this.countDown = 3;
-            // this.countDownText = this.add.text(Constants.CANVAS_W, Constants.CANVAS_H, 'Continue in ' + this.countDown, { fontSize: '30px', color: '#fff' })
-            // this.countTimeEvent = this.time.addEvent({
-            //     delay: 1000,
-            //     callback: this.countDownTime,
-            //     callbackScope: this,
-            //     loop:true
-            // })
-            this.isPaused = false;
-            this.physics.resume();
+            this.countDown = 3;
+            this.onPauseEvent = true;
+            this.countDownText = this.add.text(Constants.CANVAS_W / 2 - 100, Constants.CANVAS_H / 2, 'Continue in ' + this.countDown, { fontSize: '30px', color: '#1363DF' })
+            this.countTimeEvent = this.time.addEvent({
+                delay: 1000,
+                callback: this.countDownTime,
+                callbackScope: this,
+                loop: true
+            })
+
         })
     }
     countDownTime() {
-
+        this.countDown -= 1;
+        this.countDownText.setText('Continue in ' + this.countDown);
+        if (this.countDown <= 0) {
+            this.countDownText.setText('');
+            this.physics.resume();
+            this.isPaused = false;
+            this.countTimeEvent.remove();
+        }
     }
 
     inputHandler() {
