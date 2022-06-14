@@ -158,7 +158,7 @@ export class PlayScene extends Phaser.Scene {
     }
 
     checkGameStatus() {
-        if (this.bird.getBounds().bottom >= Constants.CANVAS_H || this.bird.y <= 0) {
+        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
             this.gameOver();
         }
     }
@@ -174,7 +174,8 @@ export class PlayScene extends Phaser.Scene {
         this.pipes.getChildren().forEach((pipe: any) => {
             x = Math.max(x, pipe.x);
         })
-        return x;
+        if (x != 0) return x;
+        return 800;
     }
     recylePipes() {
         let pair: Pipe[] = [];
