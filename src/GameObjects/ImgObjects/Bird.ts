@@ -61,7 +61,4 @@ export class Bird extends Phaser.GameObjects.Sprite {
         this.isFalling = true;
         this.depth = 5;
     }
-    reset() {
-        this.isFalling = false;
-    }
 }

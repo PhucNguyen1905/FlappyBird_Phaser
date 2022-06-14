@@ -14,20 +14,29 @@ export class PlayScene extends Phaser.Scene {
     score: number = 0;
     isFalling: boolean = false;
     isOver: boolean = false;
+    isPaused: boolean = false;
+    countDown: number = 3;
+    countDownText!: Phaser.GameObjects.Text;
     pointSound!: PointSound;
     fallSound!: FallSound;
     flapSound!: FlapSound;
     clickSound!: ClickSound;
+    countTimeEvent!: Phaser.Time.TimerEvent;
+    fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
 
     scoreText!: Phaser.GameObjects.Text;
     constructor() {
         super('PlayScene');
-        this.score = 0;
     }
     init() {
         this.initBackground();
         this.initBird();
         this.initSounds();
+        this.score = 0;
+        this.countDown = 3;
+        this.isFalling = false;
+        this.isOver = false;
+        this.isPaused = false;
     }
 
     preload() {
@@ -67,8 +76,8 @@ export class PlayScene extends Phaser.Scene {
     }
     createScore() {
         const bestScore = localStorage.getItem('bestScore');
-        this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '30px', color: '#000' })
-        this.add.text(16, 50, `Best Score: ${bestScore || 0}`, { fontSize: '20px', color: '#000' })
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, this.fontStyle)
+        this.add.text(16, 50, `Best Score: ${bestScore || 0}`, this.fontStyle)
     }
     createPause() {
         const pauseBtn = this.add.image(Constants.CANVAS_W - 10, Constants.CANVAS_H - 10, 'pause')
@@ -76,6 +85,7 @@ export class PlayScene extends Phaser.Scene {
             .setOrigin(1);
         pauseBtn.setInteractive();
         pauseBtn.on('pointerdown', () => {
+            this.isPaused = true;
             this.clickSound.play();
             this.physics.pause();
             this.scene.pause();
@@ -87,13 +97,25 @@ export class PlayScene extends Phaser.Scene {
     }
     listenOnEvents() {
         this.events.on('resume', () => {
+            // this.countDown = 3;
+            // this.countDownText = this.add.text(Constants.CANVAS_W, Constants.CANVAS_H, 'Continue in ' + this.countDown, { fontSize: '30px', color: '#fff' })
+            // this.countTimeEvent = this.time.addEvent({
+            //     delay: 1000,
+            //     callback: this.countDownTime,
+            //     callbackScope: this,
+            //     loop:true
+            // })
+            this.isPaused = false;
             this.physics.resume();
         })
     }
+    countDownTime() {
+
+    }
 
     inputHandler() {
-        this.input.keyboard.on('keydown-SPACE', this.flap, this);
-        this.input.on('pointerdown', this.flap, this);
+        !this.isFalling && this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        !this.isFalling && this.input.on('pointerdown', this.flap, this);
 
         this.input.keyboard.on('keyup-P', () => {
             this.clickSound.play();
@@ -122,14 +144,17 @@ export class PlayScene extends Phaser.Scene {
     }
 
     birdFalling() {
-        this.flapSound.play();
+        this.fallSound.play();
         this.isFalling = true;
         this.bird.setTint(0xD61C4E);
+        this.bird.anims.stop();
         this.physics.world.disable(this.pipes)
     }
     flap() {
-        this.flapSound.play();
-        this.bird.flyUp();
+        if (!this.isPaused) {
+            !this.isFalling && this.flapSound.play();
+            this.bird.flyUp();
+        }
     }
 
     checkGameStatus() {
@@ -192,12 +217,10 @@ export class PlayScene extends Phaser.Scene {
         this.physics.pause();
         this.bird.setTint(0xD61C4E);
         this.saveBestScore();
-        this.bird.reset();
         this.time.addEvent({
             delay: 1000,
             callback: () => {
-                this.scene.restart();
-                this.resetScore();
+                this.scene.start('OverScene')
             },
             loop: false
         })
@@ -206,10 +229,6 @@ export class PlayScene extends Phaser.Scene {
     incScore() {
         this.pointSound.play()
         this.score += 1;
-        this.scoreText.setText(`Score: ${this.score}`);
-    }
-    resetScore() {
-        this.score = 0;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 }
