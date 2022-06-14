@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import { ITitleSpriteConstructor } from '../ConstructInterface';
 
 export class Background extends Phaser.GameObjects.TileSprite {

@@ -13,3 +13,14 @@ export interface ITitleSpriteConstructor {
     h: number,
     key: string;
 }
+
+export interface ITextConstructor {
+    scene: Phaser.Scene;
+    x: number;
+    y: number;
+    content: string;
+    style: {
+        fontSize: string,
+        color: string
+    }
+}

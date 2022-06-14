@@ -1,17 +1,15 @@
-import 'phaser';
 import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 
-export class MenuScene extends Phaser.Scene {
+export class PauseScene extends Phaser.Scene {
     bg!: Background;
     menuItems: {}[];
     fontStyle: {} = { fontSize: '30px', color: '#fff' };
     constructor() {
-        super('MenuScene');
+        super('PauseScene');
         this.menuItems = [
-            { scene: 'PlayScene', text: 'Play' },
-            { scene: 'ScoreScene', text: 'Score' },
-            { scene: 'Exit', text: 'Exit' }
+            { scene: 'PlayScene', text: 'Continue' },
+            { scene: 'StartScene', text: 'Exit' }
         ]
     }
     // preload() {
@@ -38,10 +36,10 @@ export class MenuScene extends Phaser.Scene {
             const pos = [Constants.CANVAS_W / 2, Constants.CANVAS_H / 2 + lastY];
             item.textObject = this.add.text(pos[0], pos[1], item.text, this.fontStyle).setOrigin(0.5, 1);
             lastY += 35;
-            this.setMenuEvent(item.textObject, item.scene);
+            this.setMenuEvent(item.textObject, item);
         })
     }
-    setMenuEvent(textObject: Phaser.GameObjects.Text, scene: string) {
+    setMenuEvent(textObject: Phaser.GameObjects.Text, item: { scene: string, text: string }) {
         textObject.setInteractive();
 
         textObject.on('pointerover', () => {
@@ -51,10 +49,12 @@ export class MenuScene extends Phaser.Scene {
             textObject.setColor('#fff');
         })
         textObject.on('pointerup', () => {
-            if (scene == 'Exit') {
-                this.game.destroy(true);
+            if (item.text == 'Continue') {
+                this.scene.stop();
+                this.scene.resume(item.scene);
             } else {
-                this.scene.start(scene);
+                this.scene.stop('PlayScene')
+                this.scene.start('StartScene')
             }
         })
     }

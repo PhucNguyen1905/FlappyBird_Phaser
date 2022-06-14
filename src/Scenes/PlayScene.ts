@@ -1,8 +1,11 @@
-import Phaser from "phaser";
 import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
+import { ClickSound } from "../GameObjects/Sounds/ClickSound";
+import { FallSound } from "../GameObjects/Sounds/FallSound";
+import { FlapSound } from "../GameObjects/Sounds/FlapSound";
+import { PointSound } from "../GameObjects/Sounds/PointSound";
 
 export class PlayScene extends Phaser.Scene {
     bg!: Background;
@@ -11,14 +14,20 @@ export class PlayScene extends Phaser.Scene {
     score: number = 0;
     isFalling: boolean = false;
     isOver: boolean = false;
+    pointSound!: PointSound;
+    fallSound!: FallSound;
+    flapSound!: FlapSound;
+    clickSound!: ClickSound;
 
     scoreText!: Phaser.GameObjects.Text;
     constructor() {
         super('PlayScene');
+        this.score = 0;
     }
     init() {
         this.initBackground();
         this.initBird();
+        this.initSounds();
     }
 
     preload() {
@@ -30,6 +39,7 @@ export class PlayScene extends Phaser.Scene {
         this.createPause();
         this.createCollider();
         this.inputHandler();
+        this.listenOnEvents();
     }
 
     initBackground() {
@@ -37,6 +47,12 @@ export class PlayScene extends Phaser.Scene {
     }
     initBird() {
         this.bird = new Bird({ scene: this, x: Constants.BIRD_START_X, y: Constants.BIRD_START_Y, key: 'bird_sprites' })
+    }
+    initSounds() {
+        this.pointSound = new PointSound(this.sound);
+        this.fallSound = new FallSound(this.sound);
+        this.flapSound = new FlapSound(this.sound)
+        this.clickSound = new ClickSound(this.sound)
     }
     createPipes() {
         this.pipes = this.add.group();
@@ -60,17 +76,31 @@ export class PlayScene extends Phaser.Scene {
             .setOrigin(1);
         pauseBtn.setInteractive();
         pauseBtn.on('pointerdown', () => {
+            this.clickSound.play();
             this.physics.pause();
             this.scene.pause();
+            this.scene.launch('PauseScene')
         })
     }
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
     }
+    listenOnEvents() {
+        this.events.on('resume', () => {
+            this.physics.resume();
+        })
+    }
 
     inputHandler() {
-        this.input.keyboard.on('keydown-SPACE', this.bird.flyUp, this.bird);
-        this.input.on('pointerdown', this.bird.flyUp, this.bird);
+        this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        this.input.on('pointerdown', this.flap, this);
+
+        this.input.keyboard.on('keyup-P', () => {
+            this.clickSound.play();
+            this.physics.pause();
+            this.scene.pause();
+            this.scene.launch('PauseScene')
+        })
     }
 
     update(time: number, delta: number): void {
@@ -92,9 +122,14 @@ export class PlayScene extends Phaser.Scene {
     }
 
     birdFalling() {
+        this.flapSound.play();
         this.isFalling = true;
         this.bird.setTint(0xD61C4E);
         this.physics.world.disable(this.pipes)
+    }
+    flap() {
+        this.flapSound.play();
+        this.bird.flyUp();
     }
 
     checkGameStatus() {
@@ -169,6 +204,7 @@ export class PlayScene extends Phaser.Scene {
     }
 
     incScore() {
+        this.pointSound.play()
         this.score += 1;
         this.scoreText.setText(`Score: ${this.score}`);
     }

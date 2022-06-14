@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import { IImageConstructor } from '../ConstructInterface';
 export class FlappyImg extends Phaser.GameObjects.Image {
     constructor(f: IImageConstructor) {

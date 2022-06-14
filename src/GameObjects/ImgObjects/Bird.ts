@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import { IImageConstructor } from '../ConstructInterface';
 export class Bird extends Phaser.GameObjects.Sprite {
     animKey: string;
@@ -31,7 +30,7 @@ export class Bird extends Phaser.GameObjects.Sprite {
                 start: 0,
                 end: 16
             }),
-            frameRate: 50,
+            frameRate: 51,
             repeat: -1
         })
         this.play(this.animKey);
