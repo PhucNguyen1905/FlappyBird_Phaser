@@ -32,7 +32,7 @@ export class Rocket extends Phaser.GameObjects.Sprite {
                 start: 0,
                 end: 3
             }),
-            frameRate: 4,
+            frameRate: 40,
             repeat: -1
         })
         this.play(this.animKey);

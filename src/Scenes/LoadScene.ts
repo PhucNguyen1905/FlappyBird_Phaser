@@ -81,6 +81,7 @@ export class LoadScene extends Phaser.Scene {
         this.load.spritesheet('rocket_sprites', 'assets/rocket_sprites.png', { frameWidth: 60, frameHeight: 23 });
         this.load.spritesheet('explosion', 'assets/explosion.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('enemy_sprites', 'assets/enemy_sprites.png', { frameWidth: 75, frameHeight: 74 });
+        this.load.spritesheet('coin_sprites', 'assets/coin_sprites.png', { frameWidth: 28, frameHeight: 38 });
 
         // Loading sound
         this.load.audio('click', 'sounds/click.mp3');

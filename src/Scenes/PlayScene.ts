@@ -1,6 +1,7 @@
 import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
+import { Coin } from '../GameObjects/ImgObjects/Coin';
 import { Enemy } from '../GameObjects/ImgObjects/Enemy';
 import { Exposion } from '../GameObjects/ImgObjects/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
@@ -15,6 +16,7 @@ export class PlayScene extends Phaser.Scene {
     bg!: Background;
     bird!: Bird;
     enemy!: Enemy;
+    coin!: Coin;
     pipes!: Phaser.GameObjects.Group;
     rockets: Rocket[] = [];
     score: number = 0;
@@ -40,6 +42,7 @@ export class PlayScene extends Phaser.Scene {
         this.initBackground();
         this.initBird();
         this.initEnemy();
+        this.initCoin();
         this.initSounds();
         this.score = 0;
         this.countDown = 3;
@@ -75,6 +78,9 @@ export class PlayScene extends Phaser.Scene {
         this.clickSound = new ClickSound(this.sound)
         this.strongHitSound = new StrongHitSound(this.sound)
     }
+    initCoin() {
+        this.coin = new Coin({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'coin_sprites' })
+    }
     createPipes() {
         this.pipes = this.add.group();
         for (let i = 0; i < 4; i++) {
@@ -107,6 +113,10 @@ export class PlayScene extends Phaser.Scene {
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
         this.physics.add.collider(this.bird, this.enemy, this.birdFalling, undefined, this);
+        this.physics.add.overlap(this.bird, this.coin, () => {
+            this.incScore();
+            this.coin.hide();
+        });
         this.physics.add.collider(this.rockets, this.pipes, (rocket: any) => {
             let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
             this.strongHitSound.play();
@@ -165,6 +175,7 @@ export class PlayScene extends Phaser.Scene {
             this.recylePipes();
             this.bg.update();
             this.updateRockets();
+            this.coin.update();
 
         } else if (this.isFalling) {
             this.bird.falling();
@@ -244,8 +255,15 @@ export class PlayScene extends Phaser.Scene {
         let topPipeYPos = Phaser.Math.Between(20, Constants.CANVAS_H - spaceBetPipeY - 80);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
         let mostRightPipeX = this.getMostRightPipeX();
+
+        // Generate enemy
         if (Math.random() > 0.3) {
             this.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
+        }
+
+        // Generate coin
+        if (this.score % 3 == 0 && this.score > 1) {
+            this.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
         }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
         topPipe.y = topPipeYPos;
@@ -257,6 +275,12 @@ export class PlayScene extends Phaser.Scene {
             return;
         }
         this.enemy.setNewPos(x + 40, y);
+    }
+    genCoin(x: number, y: number) {
+        if (this.coin.isAppeared) {
+            return;
+        }
+        this.coin.setNewPos(x, y);
     }
 
     saveBestScore() {
