@@ -244,7 +244,7 @@ export class PlayScene extends Phaser.Scene {
         let topPipeYPos = Phaser.Math.Between(20, Constants.CANVAS_H - spaceBetPipeY - 80);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
         let mostRightPipeX = this.getMostRightPipeX();
-        if (spaceBetPipeY > 200 && Math.random() > 0.4) {
+        if (Math.random() > 0.3) {
             this.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
         }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
