@@ -7,6 +7,9 @@ export class Exposion extends Phaser.GameObjects.Sprite {
         super(r.scene, r.x, r.y, r.key);
         this.setOrigin(0.5, 0.5);
 
+        this.setSize(60, 58);
+        this.setDisplaySize(60, 58)
+
         // Create animation
         this.animKey = r.key + '_anim';
         this.createAnims(r.key);

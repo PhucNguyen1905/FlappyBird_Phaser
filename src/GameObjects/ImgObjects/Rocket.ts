@@ -8,6 +8,7 @@ export class Rocket extends Phaser.GameObjects.Sprite {
         super(r.scene, r.x, r.y, r.key);
         this.setOrigin(0.5, 0.5);
 
+
         // Create animation
         this.animKey = r.key + '_anim';
         this.createAnims(r.key);
@@ -19,7 +20,8 @@ export class Rocket extends Phaser.GameObjects.Sprite {
     }
     setUpPhysics() {
         this.scene.physics.world.enable(this);
-        this.body.setVelocityX(300);
+        this.body.setImmovable(true);
+        this.body.setVelocityX(300)
 
     }
 
@@ -38,7 +40,6 @@ export class Rocket extends Phaser.GameObjects.Sprite {
 
     update(): void {
         if (this.x > Constants.CANVAS_W) {
-            console.log('destroy')
             this.destroy();
         }
     }

@@ -1,6 +1,7 @@
 import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
+import { Enemy } from '../GameObjects/ImgObjects/Enemy';
 import { Exposion } from '../GameObjects/ImgObjects/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
 import { Rocket } from '../GameObjects/ImgObjects/Rocket';
@@ -8,12 +9,14 @@ import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
 import { FlapSound } from "../GameObjects/Sounds/FlapSound";
 import { PointSound } from "../GameObjects/Sounds/PointSound";
+import { StrongHitSound } from '../GameObjects/Sounds/StrongHitSound';
 
 export class PlayScene extends Phaser.Scene {
     bg!: Background;
     bird!: Bird;
+    enemy!: Enemy;
     pipes!: Phaser.GameObjects.Group;
-    // rockets!: Phaser.GameObjects.Group;
+    rockets: Rocket[] = [];
     score: number = 0;
     isFalling: boolean = false;
     isOver: boolean = false;
@@ -24,6 +27,7 @@ export class PlayScene extends Phaser.Scene {
     fallSound!: FallSound;
     flapSound!: FlapSound;
     clickSound!: ClickSound;
+    strongHitSound!: StrongHitSound;
     countTimeEvent!: Phaser.Time.TimerEvent;
     eventPause!: Phaser.Events.EventEmitter;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
@@ -35,6 +39,7 @@ export class PlayScene extends Phaser.Scene {
     init() {
         this.initBackground();
         this.initBird();
+        this.initEnemy();
         this.initSounds();
         this.score = 0;
         this.countDown = 3;
@@ -44,8 +49,6 @@ export class PlayScene extends Phaser.Scene {
     }
 
     preload() {
-        this.pipes = this.physics.add.group();
-        // this.rockets = this.physics.add.group();
     }
     create() {
         this.createPipes();
@@ -62,11 +65,15 @@ export class PlayScene extends Phaser.Scene {
     initBird() {
         this.bird = new Bird({ scene: this, x: Constants.BIRD_START_X, y: Constants.BIRD_START_Y, key: 'bird_sprites' })
     }
+    initEnemy() {
+        this.enemy = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
+    }
     initSounds() {
         this.pointSound = new PointSound(this.sound);
         this.fallSound = new FallSound(this.sound);
         this.flapSound = new FlapSound(this.sound)
         this.clickSound = new ClickSound(this.sound)
+        this.strongHitSound = new StrongHitSound(this.sound)
     }
     createPipes() {
         this.pipes = this.add.group();
@@ -99,7 +106,19 @@ export class PlayScene extends Phaser.Scene {
     }
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
-        // this.physics.add.collider(this.rockets, this.pipes, this.colideRocket, undefined, this);
+        this.physics.add.collider(this.bird, this.enemy, this.birdFalling, undefined, this);
+        this.physics.add.collider(this.rockets, this.pipes, (rocket: any) => {
+            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
+            this.strongHitSound.play();
+            rocket.destroy();
+        });
+        this.physics.add.collider(this.rockets, this.enemy, (rocket: any) => {
+            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
+            this.strongHitSound.play();
+            rocket.destroy();
+            this.enemy.hide();
+            this.incScore();
+        });
     }
     listenOnEvents() {
         if (this.eventPause) return;
@@ -145,6 +164,7 @@ export class PlayScene extends Phaser.Scene {
             this.bird.update(delta, this.isPaused);
             this.recylePipes();
             this.bg.update();
+            this.updateRockets();
 
         } else if (this.isFalling) {
             this.bird.falling();
@@ -152,6 +172,11 @@ export class PlayScene extends Phaser.Scene {
             this.checkReachGround();
         } else {
             this.gameOver();
+        }
+    }
+    updateRockets() {
+        for (const rocket of this.rockets) {
+            rocket.update();
         }
     }
 
@@ -171,15 +196,7 @@ export class PlayScene extends Phaser.Scene {
 
     shootRocket() {
         let rocket = new Rocket({ scene: this, x: Constants.BIRD_START_X, y: this.bird.y, key: 'rocket_sprites' })
-        this.physics.add.collider(rocket, this.pipes, (rocket: any) => {
-            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
-            rocket.destroy();
-            // expl.destroy()
-        })
-        // this.rockets.add(rocket)
-    }
-    colideRocketPipes() {
-        console.log('Boommm')
+        this.rockets.push(rocket)
     }
 
     checkGameStatus() {
@@ -222,15 +239,24 @@ export class PlayScene extends Phaser.Scene {
     }
 
     genPipePos(topPipe: Pipe, botPipe: Pipe) {
-        let spaceBetPipeY = Phaser.Math.Between(160, 200);
+        let spaceBetPipeY = Phaser.Math.Between(160, 220);
+
         let topPipeYPos = Phaser.Math.Between(20, Constants.CANVAS_H - spaceBetPipeY - 80);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
         let mostRightPipeX = this.getMostRightPipeX();
-
+        if (spaceBetPipeY > 200 && Math.random() > 0.4) {
+            this.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
+        }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
         topPipe.y = topPipeYPos;
         botPipe.x = mostRightPipeX + spaceBetPipeX;
         botPipe.y = topPipeYPos + spaceBetPipeY;
+    }
+    genEnemy(x: number, y: number) {
+        if (this.enemy.isAppeared) {
+            return;
+        }
+        this.enemy.setNewPos(x + 40, y);
     }
 
     saveBestScore() {
