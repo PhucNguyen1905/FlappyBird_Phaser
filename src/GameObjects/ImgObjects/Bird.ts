@@ -36,7 +36,8 @@ export class Bird extends Phaser.GameObjects.Sprite {
         this.play(this.animKey);
     }
 
-    update(delta: number): void {
+    update(delta: number, isPause: boolean): void {
+        if (isPause) return;
         const dt = delta / 1000;
         if (this.body.velocity.y < 0) {
             this.angle -= 650 * (dt);
@@ -49,6 +50,7 @@ export class Bird extends Phaser.GameObjects.Sprite {
                 this.angle = 90;
             }
         }
+        // this.angle = this.body.velocity.y / 600 * 90;
     }
 
     flyUp() {

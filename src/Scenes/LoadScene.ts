@@ -4,6 +4,7 @@ export class LoadScene extends Phaser.Scene {
     constructor() {
         super('LoadScene');
     }
+
     preload() {
         let progressBar = this.add.graphics();
         let progressBox = this.add.graphics();
@@ -14,7 +15,7 @@ export class LoadScene extends Phaser.Scene {
         let height = this.cameras.main.height;
         let loadingText = this.make.text({
             x: width / 2,
-            y: height / 2 - 50,
+            y: height / 2 - 30,
             text: 'Loading...',
             style: {
                 font: '20px monospace',
@@ -24,8 +25,8 @@ export class LoadScene extends Phaser.Scene {
         loadingText.setOrigin(0.5, 0.5);
 
         let percentText = this.make.text({
-            x: width / 2,
-            y: height / 2 - 5,
+            x: width / 2 + 5,
+            y: height / 2 + 22,
             text: '0%',
             style: {
                 font: '18px monospace',
@@ -36,7 +37,7 @@ export class LoadScene extends Phaser.Scene {
 
         let assetText = this.make.text({
             x: width / 2,
-            y: height / 2 + 50,
+            y: height / 2 + 60,
             text: '',
             style: {
                 font: '18px monospace',
@@ -45,14 +46,14 @@ export class LoadScene extends Phaser.Scene {
         });
         assetText.setOrigin(0.5, 0.5);
 
-        this.load.on('progress', function (value: any) {
+        this.load.on('progress', function (value: number) {
             percentText.setText((value * 100).toFixed(2) + '%');
             progressBar.clear();
-            progressBar.fillStyle(0xffffff, 1);
-            progressBar.fillRect(350, Constants.CANVAS_H / 2, 300 * value, 30);
+            progressBar.fillStyle(0x3AB0FF, 1);
+            progressBar.fillRect(360, Constants.CANVAS_H / 2 + 10, 300 * value, 30);
         });
 
-        this.load.on('fileprogress', function (file: any) {
+        this.load.on('fileprogress', function (file: Phaser.Loader.File) {
             assetText.setText('Loading asset: ' + file.key);
         });
         this.load.on('complete', function () {
@@ -74,9 +75,6 @@ export class LoadScene extends Phaser.Scene {
         this.load.image('playbtn', 'assets/playbtn.png');
         this.load.image('restart', 'assets/restart.png');
         this.load.image('exit', 'assets/exit.png');
-        for (let i = 1; i < 200; i++) {
-            this.load.image('loadingimg' + i, 'assets/exit.png');
-        }
 
         // Loading spritesheet
         this.load.spritesheet('bird_sprites', 'assets/spritesheet.png', { frameWidth: 80, frameHeight: 63 });
@@ -87,6 +85,7 @@ export class LoadScene extends Phaser.Scene {
         this.load.audio('hit', 'sounds/hit.mp3');
         this.load.audio('point', 'sounds/point.mp3');
         this.load.audio('flap', 'sounds/wing.mp3');
+        this.load.audio('mouse_over', 'sounds/mouseover.mp3');
 
     }
     create() {

@@ -2,6 +2,7 @@ import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { GamePauseImg } from '../GameObjects/ImgObjects/GamePauseImg';
 import { ClickSound } from '../GameObjects/Sounds/ClickSound';
+import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 
 export class PauseScene extends Phaser.Scene {
     bg!: Background;
@@ -9,6 +10,7 @@ export class PauseScene extends Phaser.Scene {
     gamePauseImg!: GamePauseImg;
     fontStyle: {} = { fontSize: '30px', color: '#fff' };
     clickSound!: ClickSound;
+    mouseOverSound!: MouseOverSound;
     constructor() {
         super('PauseScene');
         this.menuItems = [
@@ -30,6 +32,7 @@ export class PauseScene extends Phaser.Scene {
     }
     initSounds() {
         this.clickSound = new ClickSound(this.sound);
+        this.mouseOverSound = new MouseOverSound(this.sound);
     }
 
     update(time: number, delta: number): void {
@@ -49,7 +52,7 @@ export class PauseScene extends Phaser.Scene {
         textObject.setInteractive();
 
         textObject.on('pointerover', () => {
-            this.clickSound.play();
+            this.mouseOverSound.play();
             textObject.setColor('#F9D923');
         })
         textObject.on('pointerout', () => {

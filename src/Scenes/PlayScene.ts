@@ -22,7 +22,7 @@ export class PlayScene extends Phaser.Scene {
     flapSound!: FlapSound;
     clickSound!: ClickSound;
     countTimeEvent!: Phaser.Time.TimerEvent;
-    onPauseEvent: boolean = false;
+    eventPause!: Phaser.Events.EventEmitter;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
 
     scoreText!: Phaser.GameObjects.Text;
@@ -38,7 +38,6 @@ export class PlayScene extends Phaser.Scene {
         this.isFalling = false;
         this.isOver = false;
         this.isPaused = false;
-        this.onPauseEvent = false;
     }
 
     preload() {
@@ -98,10 +97,9 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
     }
     listenOnEvents() {
-        if (this.onPauseEvent) return;
-        this.events.on('resume', () => {
+        if (this.eventPause) return;
+        this.eventPause = this.events.on('resume', () => {
             this.countDown = 3;
-            this.onPauseEvent = true;
             this.countDownText = this.add.text(Constants.CANVAS_W / 2 - 100, Constants.CANVAS_H / 2, 'Continue in ' + this.countDown, { fontSize: '30px', color: '#1363DF' })
             this.countTimeEvent = this.time.addEvent({
                 delay: 1000,
@@ -124,8 +122,8 @@ export class PlayScene extends Phaser.Scene {
     }
 
     inputHandler() {
-        !this.isFalling && this.input.keyboard.on('keydown-SPACE', this.flap, this);
-        !this.isFalling && this.input.on('pointerdown', this.flap, this);
+        this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        this.input.on('pointerdown', this.flap, this);
 
         this.input.keyboard.on('keyup-P', () => {
             this.clickSound.play();
@@ -138,17 +136,15 @@ export class PlayScene extends Phaser.Scene {
     update(time: number, delta: number): void {
         if (!this.isFalling && !this.isOver) {
             this.checkGameStatus();
-            this.bird.update(delta);
+            this.bird.update(delta, this.isPaused);
             this.recylePipes();
             this.bg.update();
 
         } else if (this.isFalling) {
             this.bird.falling();
-            this.bird.update(delta);
+            this.bird.update(delta, this.isPaused);
             this.checkReachGround();
         } else {
-            this.isFalling = false;
-            this.isOver = false;
             this.gameOver();
         }
     }
@@ -169,6 +165,8 @@ export class PlayScene extends Phaser.Scene {
 
     checkGameStatus() {
         if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
+            this.isOver = true;
+            this.bird.anims.stop();
             this.gameOver();
         }
     }
