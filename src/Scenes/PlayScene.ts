@@ -6,6 +6,7 @@ import { Enemy } from '../GameObjects/ImgObjects/Enemy';
 import { Exposion } from '../GameObjects/ImgObjects/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
 import { Rocket } from '../GameObjects/ImgObjects/Rocket';
+import { BgMusic } from '../GameObjects/Sounds/BgMusic';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
 import { FlapSound } from "../GameObjects/Sounds/FlapSound";
@@ -30,6 +31,7 @@ export class PlayScene extends Phaser.Scene {
     flapSound!: FlapSound;
     clickSound!: ClickSound;
     strongHitSound!: StrongHitSound;
+    bgMusic!: BgMusic;
     countTimeEvent!: Phaser.Time.TimerEvent;
     eventPause!: Phaser.Events.EventEmitter;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
@@ -44,11 +46,7 @@ export class PlayScene extends Phaser.Scene {
         this.initEnemy();
         this.initCoin();
         this.initSounds();
-        this.score = 0;
-        this.countDown = 3;
-        this.isFalling = false;
-        this.isOver = false;
-        this.isPaused = false;
+        this.initGameConfig();
     }
 
     preload() {
@@ -77,9 +75,19 @@ export class PlayScene extends Phaser.Scene {
         this.flapSound = new FlapSound(this.sound)
         this.clickSound = new ClickSound(this.sound)
         this.strongHitSound = new StrongHitSound(this.sound)
+        this.bgMusic = new BgMusic(this.sound);
+        this.bgMusic.loop = true;
+        this.bgMusic.play();
     }
     initCoin() {
         this.coin = new Coin({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'coin_sprites' })
+    }
+    initGameConfig() {
+        this.score = 0;
+        this.countDown = 3;
+        this.isFalling = false;
+        this.isOver = false;
+        this.isPaused = false;
     }
     createPipes() {
         this.pipes = this.add.group();
@@ -105,6 +113,7 @@ export class PlayScene extends Phaser.Scene {
         pauseBtn.on('pointerdown', () => {
             this.isPaused = true;
             this.clickSound.play();
+            this.bgMusic.stop();
             this.physics.pause();
             this.scene.pause();
             this.scene.launch('PauseScene')
@@ -129,6 +138,12 @@ export class PlayScene extends Phaser.Scene {
             this.enemy.hide();
             this.incScore();
         });
+        this.physics.add.collider(this.rockets, this.coin, (rocket: any) => {
+            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
+            this.strongHitSound.play();
+            rocket.destroy();
+            this.coin.hide();
+        });
     }
     listenOnEvents() {
         if (this.eventPause) return;
@@ -150,6 +165,7 @@ export class PlayScene extends Phaser.Scene {
         if (this.countDown <= 0) {
             this.countDownText.setText('');
             this.physics.resume();
+            this.bgMusic.play();
             this.isPaused = false;
             this.countTimeEvent.remove();
         }
@@ -292,6 +308,7 @@ export class PlayScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.bgMusic.stop();
         this.physics.pause();
         this.bird.setTint(0xD61C4E);
         this.saveBestScore();

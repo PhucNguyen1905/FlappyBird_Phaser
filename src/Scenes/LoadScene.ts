@@ -91,6 +91,9 @@ export class LoadScene extends Phaser.Scene {
         this.load.audio('point', 'sounds/point.mp3');
         this.load.audio('flap', 'sounds/wing.mp3');
         this.load.audio('mouse_over', 'sounds/mouseover.mp3');
+        this.load.audio('bgmusic', 'sounds/bgmusic.mp3');
+        this.load.audio('start_music', 'sounds/start_music.mp3');
+        this.load.audio('over_music', 'sounds/over_music.mp3');
 
     }
     create() {

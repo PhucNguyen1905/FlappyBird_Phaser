@@ -4,6 +4,8 @@ import { ExitBtn } from '../GameObjects/ImgObjects/ExitBtn';
 import { OverImg } from "../GameObjects/ImgObjects/OverImg";
 import { RestartBtn } from "../GameObjects/ImgObjects/RestartBtn";
 import { ClickSound } from '../GameObjects/Sounds/ClickSound';
+import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
+import { OverMusic } from '../GameObjects/Sounds/OverMusic';
 import { HighestText } from "../GameObjects/TextObjects/HighestText";
 
 export class OverScene extends Phaser.Scene {
@@ -12,6 +14,8 @@ export class OverScene extends Phaser.Scene {
     restartBtn!: RestartBtn;
     exitBtn!: ExitBtn;
     clickSound!: ClickSound;
+    mouseOverSound!: MouseOverSound;
+    overMusic!: OverMusic;
     highestText!: HighestText;
     fontStyle = { fontSize: '40px', color: '#F15412' };
     constructor() {
@@ -38,6 +42,10 @@ export class OverScene extends Phaser.Scene {
     }
     initSounds() {
         this.clickSound = new ClickSound(this.sound);
+        this.mouseOverSound = new MouseOverSound(this.sound);
+        this.overMusic = new OverMusic(this.sound);
+        this.overMusic.loop = true;
+        this.overMusic.play();
     }
     initHighestText() {
         this.highestText = new HighestText({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2, content: '', style: this.fontStyle })
@@ -55,11 +63,19 @@ export class OverScene extends Phaser.Scene {
     inputHandler() {
         this.restartBtn.on('pointerdown', () => {
             this.clickSound.play()
+            this.overMusic.stop();
             this.scene.start('PlayScene')
+        })
+        this.restartBtn.on('pointerover', () => {
+            this.mouseOverSound.play();
         })
         this.exitBtn.on('pointerdown', () => {
             this.clickSound.play()
+            this.overMusic.stop();
             this.scene.start('StartScene')
+        })
+        this.exitBtn.on('pointerover', () => {
+            this.mouseOverSound.play();
         })
     }
 
