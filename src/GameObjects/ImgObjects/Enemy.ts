@@ -50,5 +50,9 @@ export class Enemy extends Phaser.GameObjects.Sprite {
         this.isAppeared = false;
     }
 
+    setDontMove() {
+        this.body.setVelocityX(0);
+    }
+
 
 }

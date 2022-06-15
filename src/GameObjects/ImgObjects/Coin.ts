@@ -55,6 +55,9 @@ export class Coin extends Phaser.GameObjects.Sprite {
             this.hide();
         }
     }
+    setDontMove() {
+        this.body.setVelocityX(0);
+    }
 
 
 }

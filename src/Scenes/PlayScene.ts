@@ -211,6 +211,8 @@ export class PlayScene extends Phaser.Scene {
         this.fallSound.play();
         this.isFalling = true;
         this.bird.setTint(0xD61C4E);
+        this.enemy.setDontMove();
+        this.coin.setDontMove();
         this.bird.anims.stop();
         this.physics.world.disable(this.pipes)
     }
@@ -278,7 +280,7 @@ export class PlayScene extends Phaser.Scene {
         }
 
         // Generate coin
-        if (this.score % 3 == 0 && this.score > 1) {
+        if (this.score % 2 == 0 && this.score > 1) {
             this.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
         }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
