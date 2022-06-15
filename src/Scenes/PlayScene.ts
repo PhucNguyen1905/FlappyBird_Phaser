@@ -1,7 +1,9 @@
 import { Constants } from '../Contants';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
+import { Exposion } from '../GameObjects/ImgObjects/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
+import { Rocket } from '../GameObjects/ImgObjects/Rocket';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
 import { FlapSound } from "../GameObjects/Sounds/FlapSound";
@@ -11,6 +13,7 @@ export class PlayScene extends Phaser.Scene {
     bg!: Background;
     bird!: Bird;
     pipes!: Phaser.GameObjects.Group;
+    // rockets!: Phaser.GameObjects.Group;
     score: number = 0;
     isFalling: boolean = false;
     isOver: boolean = false;
@@ -42,6 +45,7 @@ export class PlayScene extends Phaser.Scene {
 
     preload() {
         this.pipes = this.physics.add.group();
+        // this.rockets = this.physics.add.group();
     }
     create() {
         this.createPipes();
@@ -95,6 +99,7 @@ export class PlayScene extends Phaser.Scene {
     }
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
+        // this.physics.add.collider(this.rockets, this.pipes, this.colideRocket, undefined, this);
     }
     listenOnEvents() {
         if (this.eventPause) return;
@@ -123,6 +128,7 @@ export class PlayScene extends Phaser.Scene {
 
     inputHandler() {
         this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        this.input.keyboard.on('keydown-X', this.shootRocket, this);
         this.input.on('pointerdown', this.flap, this);
 
         this.input.keyboard.on('keyup-P', () => {
@@ -161,6 +167,19 @@ export class PlayScene extends Phaser.Scene {
             !this.isFalling && this.flapSound.play();
             this.bird.flyUp();
         }
+    }
+
+    shootRocket() {
+        let rocket = new Rocket({ scene: this, x: Constants.BIRD_START_X, y: this.bird.y, key: 'rocket_sprites' })
+        this.physics.add.collider(rocket, this.pipes, (rocket: any) => {
+            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
+            rocket.destroy();
+            // expl.destroy()
+        })
+        // this.rockets.add(rocket)
+    }
+    colideRocketPipes() {
+        console.log('Boommm')
     }
 
     checkGameStatus() {
