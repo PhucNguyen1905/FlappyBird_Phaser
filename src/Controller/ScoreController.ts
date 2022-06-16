@@ -3,10 +3,12 @@ import { ScoreText } from "../GameObjects/TextObjects/ScoreText";
 export class ScoreController {
     scoreText!: ScoreText;
     bestText!: ScoreText;
+    scene: Phaser.Scene;
     score: number = 0;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
 
     constructor(scene: Phaser.Scene) {
+        this.scene = scene;
         this.initScoreText(scene);
         this.initBestText(scene);
     }
@@ -29,6 +31,9 @@ export class ScoreController {
         if (!bestScore || this.score > bestScore) {
             localStorage.setItem('bestScore', String(this.score));
         }
+    }
+    saveCurScore() {
+        this.scene.registry.set('score', this.score);
     }
 
 

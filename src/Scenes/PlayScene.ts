@@ -39,9 +39,7 @@ export class PlayScene extends Phaser.Scene {
     countDownText!: Phaser.GameObjects.Text;
     countTimeEvent!: Phaser.Time.TimerEvent;
     eventPause!: Phaser.Events.EventEmitter;
-    fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
 
-    scoreText!: Phaser.GameObjects.Text;
     constructor() {
         super('PlayScene');
     }
@@ -296,6 +294,7 @@ export class PlayScene extends Phaser.Scene {
         this.physics.pause();
         this.bird.setTint(0xD61C4E);
         this.scoreControl.saveBestScore();
+        this.scoreControl.saveCurScore();
         this.time.addEvent({
             delay: 1000,
             callback: () => {

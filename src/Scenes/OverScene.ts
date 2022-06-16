@@ -7,6 +7,7 @@ import { ClickSound } from '../GameObjects/Sounds/ClickSound';
 import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 import { OverMusic } from '../GameObjects/Sounds/OverMusic';
 import { HighestText } from "../GameObjects/TextObjects/HighestText";
+import { ScoreText } from '../GameObjects/TextObjects/ScoreText';
 
 export class OverScene extends Phaser.Scene {
     bg!: Background;
@@ -16,6 +17,7 @@ export class OverScene extends Phaser.Scene {
     clickSound!: ClickSound;
     mouseOverSound!: MouseOverSound;
     overMusic!: OverMusic;
+    scoreText!: ScoreText;
     highestText!: HighestText;
     fontStyle = { fontSize: '40px', color: '#F15412' };
     constructor() {
@@ -30,9 +32,11 @@ export class OverScene extends Phaser.Scene {
 
         this.initSounds();
         this.initHighestText();
+        this.initScoreText();
 
     }
     create() {
+        this.getScore();
         this.getBestScore()
         this.inputHandler();
     }
@@ -47,9 +51,17 @@ export class OverScene extends Phaser.Scene {
         this.overMusic.loop = true;
         this.overMusic.play();
     }
+    initScoreText() {
+        this.scoreText = new ScoreText({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2 - 30, content: '', style: this.fontStyle })
+    }
     initHighestText() {
-        this.highestText = new HighestText({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2, content: '', style: this.fontStyle })
-
+        this.highestText = new HighestText({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2 + 10, content: '', style: this.fontStyle })
+    }
+    getScore() {
+        const score = this.registry.get('score');
+        this.scoreText.setText(`Your Score: ${score || 0}`);
+        this.scoreText.setOrigin(0.5);
+        this.scoreText.setColor('#3AB0FF')
     }
     getBestScore() {
         const bestScore = localStorage.getItem('bestScore');
