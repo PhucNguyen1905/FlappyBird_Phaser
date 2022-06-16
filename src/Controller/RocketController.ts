@@ -1,4 +1,4 @@
-import { Rocket } from "../GameObjects/ImgObjects/Rocket";
+import { Rocket } from "../GameObjects/ImgObjects/Sprites/Rocket";
 
 export class RocketController {
     curUsing: number = 0;

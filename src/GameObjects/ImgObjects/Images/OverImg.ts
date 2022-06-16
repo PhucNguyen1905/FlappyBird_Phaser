@@ -1,5 +1,4 @@
-import { IImageConstructor } from '../ConstructInterface';
-
+import { IImageConstructor } from "../../ConstructInterface";
 export class OverImg extends Phaser.GameObjects.Image {
     constructor(o: IImageConstructor) {
         super(o.scene, o.x, o.y, o.key);

@@ -1,5 +1,4 @@
-import { Constants } from '../../Contants';
-import { IImageConstructor } from '../ConstructInterface';
+import { IImageConstructor } from "../../ConstructInterface";
 export class Exposion extends Phaser.GameObjects.Sprite {
     animKey: string;
 

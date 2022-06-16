@@ -1,7 +1,7 @@
 import { Constants } from '../Contants';
-import { Background } from '../GameObjects/ImgObjects/Background';
-import { FlappyImg } from '../GameObjects/ImgObjects/FlappyImg';
-import { PlayBtn } from '../GameObjects/ImgObjects/PlayBtn';
+import { Background } from '../GameObjects/ImgObjects/Sprites/Background';
+import { FlappyImg } from '../GameObjects/ImgObjects/Images/FlappyImg';
+import { PlayBtn } from '../GameObjects/ImgObjects/Buttons/PlayBtn';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 import { StartMusic } from '../GameObjects/Sounds/StartMusic';

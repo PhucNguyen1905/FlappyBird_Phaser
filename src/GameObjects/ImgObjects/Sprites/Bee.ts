@@ -1,7 +1,8 @@
-import { IImageConstructor } from '../ConstructInterface';
-export class Enemy extends Phaser.GameObjects.Sprite {
+import { IImageConstructor } from "../../ConstructInterface";
+export class Bee extends Phaser.GameObjects.Sprite {
     animKey: string;
     body!: Phaser.Physics.Arcade.Body;
+    speed: number = 2;
     isAppeared: boolean = false;
 
     constructor(b: IImageConstructor) {
@@ -30,9 +31,9 @@ export class Enemy extends Phaser.GameObjects.Sprite {
             key: this.animKey,
             frames: this.anims.generateFrameNumbers(key, {
                 start: 0,
-                end: 10
+                end: 12
             }),
-            frameRate: 30,
+            frameRate: 36,
             repeat: -1
         })
         this.play(this.animKey);
@@ -41,23 +42,39 @@ export class Enemy extends Phaser.GameObjects.Sprite {
     setNewPos(x: number, y: number) {
         this.x = x;
         this.y = y;
+        this.speed = 2;
         this.body.setVelocityX(-200);
         this.isAppeared = true;
     }
+
     hide() {
         this.x = 2000;
         this.body.setVelocityX(0);
         this.isAppeared = false;
+        this.speed = 0;
     }
 
     setDontMove() {
         this.body.setVelocityX(0);
+        this.speed = 0;
     }
+
     genEnemy(x: number, y: number) {
         if (this.isAppeared) {
             return;
         }
         this.setNewPos(x + 40, y);
+    }
+
+    update(...args: any[]): void {
+        if (this.x < -50) {
+            this.hide();
+            return;
+        }
+        this.y += this.speed;
+        if (this.y < 200 || this.y > 450) {
+            this.speed *= -1;
+        }
     }
 
 

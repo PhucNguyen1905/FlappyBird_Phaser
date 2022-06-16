@@ -1,4 +1,4 @@
-import { IImageConstructor } from '../ConstructInterface';
+import { IImageConstructor } from "../../ConstructInterface";
 export class Bird extends Phaser.GameObjects.Sprite {
     animKey: string;
     body!: Phaser.Physics.Arcade.Body;

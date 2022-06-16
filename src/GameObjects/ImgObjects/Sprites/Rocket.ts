@@ -1,5 +1,5 @@
-import { Constants } from '../../Contants';
-import { IImageConstructor } from '../ConstructInterface';
+import { Constants } from '../../../Contants';
+import { IImageConstructor } from '../../ConstructInterface';
 export class Rocket extends Phaser.GameObjects.Sprite {
     animKey: string;
     isShooting: boolean = false;

@@ -1,4 +1,4 @@
-import { ITitleSpriteConstructor } from '../ConstructInterface';
+import { ITitleSpriteConstructor } from '../../ConstructInterface';
 
 export class Background extends Phaser.GameObjects.TileSprite {
     constructor(b: ITitleSpriteConstructor) {

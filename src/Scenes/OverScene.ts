@@ -1,8 +1,8 @@
 import { Constants } from '../Contants';
-import { Background } from '../GameObjects/ImgObjects/Background';
-import { ExitBtn } from '../GameObjects/ImgObjects/ExitBtn';
-import { OverImg } from "../GameObjects/ImgObjects/OverImg";
-import { RestartBtn } from "../GameObjects/ImgObjects/RestartBtn";
+import { Background } from '../GameObjects/ImgObjects/Sprites/Background';
+import { ExitBtn } from '../GameObjects/ImgObjects/Buttons/ExitBtn';
+import { OverImg } from '../GameObjects/ImgObjects/Images/OverImg';
+import { RestartBtn } from '../GameObjects/ImgObjects/Buttons/RestartBtn';
 import { ClickSound } from '../GameObjects/Sounds/ClickSound';
 import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 import { OverMusic } from '../GameObjects/Sounds/OverMusic';

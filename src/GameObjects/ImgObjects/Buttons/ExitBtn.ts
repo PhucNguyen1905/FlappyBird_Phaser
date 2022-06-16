@@ -1,4 +1,4 @@
-import { IImageConstructor } from '../ConstructInterface';
+import { IImageConstructor } from '../../ConstructInterface';
 export class ExitBtn extends Phaser.GameObjects.Image {
     constructor(p: IImageConstructor) {
         super(p.scene, p.x, p.y, p.key);

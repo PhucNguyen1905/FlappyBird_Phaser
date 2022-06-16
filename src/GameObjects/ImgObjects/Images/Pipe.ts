@@ -1,4 +1,4 @@
-import { IImageConstructor } from '../ConstructInterface';
+import { IImageConstructor } from "../../ConstructInterface";
 export class Pipe extends Phaser.GameObjects.Image {
     body!: Phaser.Physics.Arcade.Body;
     constructor(p: IImageConstructor) {

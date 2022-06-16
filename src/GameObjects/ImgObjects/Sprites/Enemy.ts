@@ -1,5 +1,5 @@
-import { IImageConstructor } from '../ConstructInterface';
-export class Coin extends Phaser.GameObjects.Sprite {
+import { IImageConstructor } from "../../ConstructInterface";
+export class Enemy extends Phaser.GameObjects.Sprite {
     animKey: string;
     body!: Phaser.Physics.Arcade.Body;
     isAppeared: boolean = false;
@@ -8,8 +8,8 @@ export class Coin extends Phaser.GameObjects.Sprite {
         super(b.scene, b.x, b.y, b.key);
         this.setOrigin(0.5, 0.5);
 
-        this.setSize(30, 40);
-        this.setDisplaySize(30, 40)
+        this.setSize(70, 68);
+        this.setDisplaySize(70, 68)
 
         // Create animation
         this.animKey = b.key + '_anim';
@@ -30,9 +30,9 @@ export class Coin extends Phaser.GameObjects.Sprite {
             key: this.animKey,
             frames: this.anims.generateFrameNumbers(key, {
                 start: 0,
-                end: 6
+                end: 10
             }),
-            frameRate: 14,
+            frameRate: 30,
             repeat: -1
         })
         this.play(this.animKey);
@@ -50,20 +50,15 @@ export class Coin extends Phaser.GameObjects.Sprite {
         this.isAppeared = false;
     }
 
-    update(...args: any[]): void {
-        if (this.x < -10) {
-            this.hide();
-        }
-    }
     setDontMove() {
         this.body.setVelocityX(0);
     }
-
-    genCoin(x: number, y: number) {
+    genEnemy(x: number, y: number) {
         if (this.isAppeared) {
             return;
         }
-        this.setNewPos(x, y);
+        this.setNewPos(x + 40, y);
     }
+
 
 }

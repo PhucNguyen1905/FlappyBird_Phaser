@@ -1,6 +1,6 @@
 import { Constants } from '../Contants';
-import { Background } from '../GameObjects/ImgObjects/Background';
-import { GamePauseImg } from '../GameObjects/ImgObjects/GamePauseImg';
+import { Background } from '../GameObjects/ImgObjects/Sprites/Background';
+import { GamePauseImg } from '../GameObjects/ImgObjects/Images/GamePauseImg';
 import { ClickSound } from '../GameObjects/Sounds/ClickSound';
 import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 
