@@ -6,7 +6,7 @@ import { MouseOverSound } from '../GameObjects/Sounds/MouseOverSound';
 
 export class PauseScene extends Phaser.Scene {
     bg!: Background;
-    menuItems: {}[];
+    menuItems: { scene: string, text: string }[];
     gamePauseImg!: GamePauseImg;
     fontStyle: {} = { fontSize: '30px', color: '#fff' };
     clickSound!: ClickSound;
@@ -15,7 +15,8 @@ export class PauseScene extends Phaser.Scene {
         super('PauseScene');
         this.menuItems = [
             { scene: 'PlayScene', text: 'Continue' },
-            { scene: 'StartScene', text: 'Exit' }
+            { scene: 'StartScene', text: 'Exit' },
+            { scene: 'Musci', text: 'Music: On' }
         ]
     }
     init() {
@@ -33,6 +34,12 @@ export class PauseScene extends Phaser.Scene {
     initSounds() {
         this.clickSound = new ClickSound(this.sound);
         this.mouseOverSound = new MouseOverSound(this.sound);
+
+        if (!this.sound.mute) {
+            this.menuItems[2].text = 'Music: On'
+        } else {
+            this.menuItems[2].text = 'Music: Off'
+        }
     }
 
     update(time: number, delta: number): void {
@@ -40,7 +47,7 @@ export class PauseScene extends Phaser.Scene {
     }
 
     createMenu() {
-        let lastY = 50;
+        let lastY = 60;
         this.menuItems.forEach((item: any) => {
             const pos = [Constants.CANVAS_W / 2, Constants.CANVAS_H / 2 + lastY];
             item.textObject = this.add.text(pos[0], pos[1], item.text, this.fontStyle).setOrigin(0.5, 1);
@@ -63,9 +70,17 @@ export class PauseScene extends Phaser.Scene {
             if (item.text == 'Continue') {
                 this.scene.stop();
                 this.scene.resume(item.scene);
-            } else {
+            } else if (item.text == 'Exit') {
                 this.scene.stop('PlayScene')
                 this.scene.start('StartScene')
+            } else {
+                if (this.sound.mute) {
+                    this.sound.mute = false
+                    textObject.setText('Music: On')
+                } else {
+                    this.sound.mute = true
+                    textObject.setText('Music: Off')
+                }
             }
         })
     }
