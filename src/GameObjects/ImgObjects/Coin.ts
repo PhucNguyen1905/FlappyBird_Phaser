@@ -59,5 +59,11 @@ export class Coin extends Phaser.GameObjects.Sprite {
         this.body.setVelocityX(0);
     }
 
+    genCoin(x: number, y: number) {
+        if (this.isAppeared) {
+            return;
+        }
+        this.setNewPos(x, y);
+    }
 
 }

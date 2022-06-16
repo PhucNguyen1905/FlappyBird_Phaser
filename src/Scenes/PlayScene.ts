@@ -46,7 +46,7 @@ export class PlayScene extends Phaser.Scene {
         this.initBackground();
         this.initBird();
         this.initEnemy();
-        this.initrocControl();
+        this.initRocControl();
         this.initCoin();
         this.initSounds();
         this.initGameConfig();
@@ -72,7 +72,7 @@ export class PlayScene extends Phaser.Scene {
     initEnemy() {
         this.enemy = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
     }
-    initrocControl() {
+    initRocControl() {
         this.rocControl = new RocketController(this);
     }
     initSounds() {
@@ -278,29 +278,17 @@ export class PlayScene extends Phaser.Scene {
 
         // Generate enemy
         if (Math.random() > 0.3) {
-            this.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
+            this.enemy.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
         }
 
         // Generate coin
         if (this.score % 2 == 0 && this.score > 1) {
-            this.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
+            this.coin.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
         }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
         topPipe.y = topPipeYPos;
         botPipe.x = mostRightPipeX + spaceBetPipeX;
         botPipe.y = topPipeYPos + spaceBetPipeY;
-    }
-    genEnemy(x: number, y: number) {
-        if (this.enemy.isAppeared) {
-            return;
-        }
-        this.enemy.setNewPos(x + 40, y);
-    }
-    genCoin(x: number, y: number) {
-        if (this.coin.isAppeared) {
-            return;
-        }
-        this.coin.setNewPos(x, y);
     }
 
     saveBestScore() {

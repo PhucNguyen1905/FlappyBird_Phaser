@@ -53,6 +53,12 @@ export class Enemy extends Phaser.GameObjects.Sprite {
     setDontMove() {
         this.body.setVelocityX(0);
     }
+    genEnemy(x: number, y: number) {
+        if (this.isAppeared) {
+            return;
+        }
+        this.setNewPos(x + 40, y);
+    }
 
 
 }
