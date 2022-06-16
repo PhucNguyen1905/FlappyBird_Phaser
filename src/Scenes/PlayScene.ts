@@ -2,6 +2,7 @@ import { Constants } from '../Contants';
 import { RocketController } from '../Controller/RocketController';
 import { ScoreController } from '../Controller/ScoreController';
 import { Background } from '../GameObjects/ImgObjects/Background';
+import { Bee } from '../GameObjects/ImgObjects/Bee';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
 import { Coin } from '../GameObjects/ImgObjects/Coin';
 import { Enemy } from '../GameObjects/ImgObjects/Enemy';
@@ -17,7 +18,8 @@ import { StrongHitSound } from '../GameObjects/Sounds/StrongHitSound';
 export class PlayScene extends Phaser.Scene {
     bg!: Background;
     bird!: Bird;
-    enemy!: Enemy;
+    dragon!: Enemy;
+    bee!: Bee;
     coin!: Coin;
     pipes!: Phaser.GameObjects.Group;
 
@@ -71,7 +73,8 @@ export class PlayScene extends Phaser.Scene {
         this.bird = new Bird({ scene: this, x: Constants.BIRD_START_X, y: Constants.BIRD_START_Y, key: 'bird_sprites' })
     }
     initEnemy() {
-        this.enemy = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
+        this.dragon = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
+        this.bee = new Bee({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'bee_sprites' })
     }
     initRocControl() {
         this.rocControl = new RocketController(this);
@@ -98,6 +101,8 @@ export class PlayScene extends Phaser.Scene {
         this.isOver = false;
         this.isPaused = false;
     }
+
+
     createPipes() {
         this.pipes = this.add.group();
         for (let i = 0; i < 4; i++) {
@@ -125,7 +130,8 @@ export class PlayScene extends Phaser.Scene {
     }
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
-        this.physics.add.collider(this.bird, this.enemy, this.birdFalling, undefined, this);
+        this.physics.add.collider(this.bird, this.dragon, this.birdFalling, undefined, this);
+        this.physics.add.collider(this.bird, this.bee, this.birdFalling, undefined, this);
         this.physics.add.overlap(this.bird, this.coin, () => {
             this.incScore();
             this.coin.hide();
@@ -135,11 +141,18 @@ export class PlayScene extends Phaser.Scene {
             this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
         });
-        this.physics.add.collider(this.rocControl.getRockets(), this.enemy, (rocket: any) => {
+        this.physics.add.collider(this.rocControl.getRockets(), this.dragon, (rocket: any) => {
             let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
             this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
-            this.enemy.hide();
+            this.dragon.hide();
+            this.incScore();
+        });
+        this.physics.add.collider(this.rocControl.getRockets(), this.bee, (rocket: any) => {
+            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
+            this.strongHitSound.play();
+            this.rocControl.rocketBoom(rocket);
+            this.bee.hide();
             this.incScore();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
@@ -149,6 +162,8 @@ export class PlayScene extends Phaser.Scene {
             this.coin.hide();
         });
     }
+
+
     listenOnEvents() {
         if (this.eventPause) return;
         this.eventPause = this.events.on('resume', () => {
@@ -175,13 +190,16 @@ export class PlayScene extends Phaser.Scene {
         }
     }
 
+
     inputHandler() {
         this.input.keyboard.on('keydown-SPACE', this.flap, this);
         this.input.keyboard.on('keydown-X', this.shootRocket, this);
         this.input.on('pointerdown', this.flap, this);
 
         this.input.keyboard.on('keyup-P', () => {
+            this.isPaused = true;
             this.clickSound.play();
+            this.bgMusic.stop();
             this.physics.pause();
             this.scene.pause();
             this.scene.launch('PauseScene')
@@ -196,6 +214,7 @@ export class PlayScene extends Phaser.Scene {
             this.bg.update();
             this.rocControl.update();
             this.coin.update();
+            this.bee.update()
 
         } else if (this.isFalling) {
             this.bird.falling();
@@ -206,11 +225,13 @@ export class PlayScene extends Phaser.Scene {
         }
     }
 
+
     birdFalling() {
         this.fallSound.play();
         this.isFalling = true;
         this.bird.setTint(0xD61C4E);
-        this.enemy.setDontMove();
+        this.dragon.setDontMove();
+        this.bee.setDontMove();
         this.coin.setDontMove();
         this.bird.anims.stop();
         this.physics.world.disable(this.pipes)
@@ -228,19 +249,6 @@ export class PlayScene extends Phaser.Scene {
         }
     }
 
-    checkGameStatus() {
-        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
-            this.isOver = true;
-            this.bird.anims.stop();
-            this.gameOver();
-        }
-    }
-    checkReachGround() {
-        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
-            this.isFalling = false;
-            this.isOver = true;
-        }
-    }
 
     getMostRightPipeX() {
         let x = 0;
@@ -266,7 +274,6 @@ export class PlayScene extends Phaser.Scene {
 
         })
     }
-
     genPipePos(topPipe: Pipe, botPipe: Pipe) {
         let spaceBetPipeY = Phaser.Math.Between(160, 220);
 
@@ -276,19 +283,39 @@ export class PlayScene extends Phaser.Scene {
 
         // Generate enemy
         if (Math.random() > 0.3) {
-            this.enemy.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
+            this.dragon.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
         }
+        if (Math.random() > 0.3 && this.scoreControl.score > 1) {
+            this.bee.genEnemy(mostRightPipeX + spaceBetPipeX / 2 + 10, Phaser.Math.Between(300, Constants.CANVAS_H - 300));
+        }
+
 
         // Generate coin
         if (this.scoreControl.score > 1 && Math.random() > 0.1) {
-            this.coin.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
+            this.coin.genCoin(mostRightPipeX + spaceBetPipeX / 2 + 10, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
         }
+
+
         topPipe.x = mostRightPipeX + spaceBetPipeX;
         topPipe.y = topPipeYPos;
         botPipe.x = mostRightPipeX + spaceBetPipeX;
         botPipe.y = topPipeYPos + spaceBetPipeY;
     }
 
+
+    checkGameStatus() {
+        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
+            this.isOver = true;
+            this.bird.anims.stop();
+            this.gameOver();
+        }
+    }
+    checkReachGround() {
+        if (this.bird.getBounds().bottom >= Constants.CANVAS_H) {
+            this.isFalling = false;
+            this.isOver = true;
+        }
+    }
     gameOver() {
         this.bgMusic.stop();
         this.physics.pause();

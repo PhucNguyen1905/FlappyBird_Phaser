@@ -26,10 +26,7 @@ export class OverScene extends Phaser.Scene {
 
     init() {
         this.initBackground();
-        this.overImg = new OverImg({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2 - 100, key: 'over' })
-        this.restartBtn = new RestartBtn({ scene: this, x: Constants.CANVAS_W / 2 - 80, y: Constants.CANVAS_H / 2 + 80, key: 'restart' })
-        this.exitBtn = new RestartBtn({ scene: this, x: Constants.CANVAS_W / 2 + 80, y: Constants.CANVAS_H / 2 + 80, key: 'exit' })
-
+        this.initButtons();
         this.initSounds();
         this.initHighestText();
         this.initScoreText();
@@ -43,6 +40,12 @@ export class OverScene extends Phaser.Scene {
 
     initBackground() {
         this.bg = new Background({ scene: this, x: 0, y: 0, w: Constants.CANVAS_W, h: Constants.CANVAS_H, key: 'background' })
+    }
+    initButtons() {
+        this.overImg = new OverImg({ scene: this, x: Constants.CANVAS_W / 2, y: Constants.CANVAS_H / 2 - 100, key: 'over' })
+        this.restartBtn = new RestartBtn({ scene: this, x: Constants.CANVAS_W / 2 - 80, y: Constants.CANVAS_H / 2 + 80, key: 'restart' })
+        this.exitBtn = new RestartBtn({ scene: this, x: Constants.CANVAS_W / 2 + 80, y: Constants.CANVAS_H / 2 + 80, key: 'exit' })
+
     }
     initSounds() {
         this.clickSound = new ClickSound(this.sound);
