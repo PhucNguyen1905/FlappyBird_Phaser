@@ -1,12 +1,12 @@
 import { Constants } from '../Contants';
 import { RocketController } from '../Controller/RocketController';
+import { ScoreController } from '../Controller/ScoreController';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
 import { Coin } from '../GameObjects/ImgObjects/Coin';
 import { Enemy } from '../GameObjects/ImgObjects/Enemy';
 import { Exposion } from '../GameObjects/ImgObjects/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Pipe';
-import { Rocket } from '../GameObjects/ImgObjects/Rocket';
 import { BgMusic } from '../GameObjects/Sounds/BgMusic';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
@@ -20,20 +20,23 @@ export class PlayScene extends Phaser.Scene {
     enemy!: Enemy;
     coin!: Coin;
     pipes!: Phaser.GameObjects.Group;
+
     rocControl!: RocketController;
-    // rockets: Rocket[] = [];
-    score: number = 0;
+    scoreControl!: ScoreController;
+
     isFalling: boolean = false;
     isOver: boolean = false;
     isPaused: boolean = false;
     countDown: number = 3;
-    countDownText!: Phaser.GameObjects.Text;
+
     pointSound!: PointSound;
     fallSound!: FallSound;
     flapSound!: FlapSound;
     clickSound!: ClickSound;
     strongHitSound!: StrongHitSound;
     bgMusic!: BgMusic;
+
+    countDownText!: Phaser.GameObjects.Text;
     countTimeEvent!: Phaser.Time.TimerEvent;
     eventPause!: Phaser.Events.EventEmitter;
     fontStyle: { fontSize: string, color: string } = { fontSize: '30px', color: '#000' };
@@ -47,6 +50,7 @@ export class PlayScene extends Phaser.Scene {
         this.initBird();
         this.initEnemy();
         this.initRocControl();
+        this.initScoreControl();
         this.initCoin();
         this.initSounds();
         this.initGameConfig();
@@ -56,7 +60,6 @@ export class PlayScene extends Phaser.Scene {
     }
     create() {
         this.createPipes();
-        this.createScore();
         this.createPause();
         this.createCollider();
         this.inputHandler();
@@ -75,6 +78,9 @@ export class PlayScene extends Phaser.Scene {
     initRocControl() {
         this.rocControl = new RocketController(this);
     }
+    initScoreControl() {
+        this.scoreControl = new ScoreController(this);
+    }
     initSounds() {
         this.pointSound = new PointSound(this.sound);
         this.fallSound = new FallSound(this.sound);
@@ -89,7 +95,6 @@ export class PlayScene extends Phaser.Scene {
         this.coin = new Coin({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'coin_sprites' })
     }
     initGameConfig() {
-        this.score = 0;
         this.countDown = 3;
         this.isFalling = false;
         this.isOver = false;
@@ -105,11 +110,6 @@ export class PlayScene extends Phaser.Scene {
             this.pipes.add(topPipe);
             this.pipes.add(botPipe);
         }
-    }
-    createScore() {
-        const bestScore = localStorage.getItem('bestScore');
-        this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, this.fontStyle)
-        this.add.text(16, 50, `Best Score: ${bestScore || 0}`, this.fontStyle)
     }
     createPause() {
         const pauseBtn = this.add.image(Constants.CANVAS_W - 10, Constants.CANVAS_H - 10, 'pause')
@@ -262,7 +262,7 @@ export class PlayScene extends Phaser.Scene {
                     this.genPipePos(pair[0], pair[1]);
                     pair = [];
                     this.incScore();
-                    this.saveBestScore();
+                    this.scoreControl.saveBestScore();
                 }
             }
 
@@ -282,7 +282,7 @@ export class PlayScene extends Phaser.Scene {
         }
 
         // Generate coin
-        if (this.score % 2 == 0 && this.score > 1) {
+        if (this.scoreControl.score > 1 && Math.random() > 0.1) {
             this.coin.genCoin(mostRightPipeX + spaceBetPipeX / 2, Phaser.Math.Between(200, Constants.CANVAS_H - 200));
         }
         topPipe.x = mostRightPipeX + spaceBetPipeX;
@@ -291,19 +291,11 @@ export class PlayScene extends Phaser.Scene {
         botPipe.y = topPipeYPos + spaceBetPipeY;
     }
 
-    saveBestScore() {
-        const bestScoreText = localStorage.getItem('bestScore');
-        const bestScore = bestScoreText && parseInt(bestScoreText, 10);
-        if (!bestScore || this.score > bestScore) {
-            localStorage.setItem('bestScore', String(this.score));
-        }
-    }
-
     gameOver() {
         this.bgMusic.stop();
         this.physics.pause();
         this.bird.setTint(0xD61C4E);
-        this.saveBestScore();
+        this.scoreControl.saveBestScore();
         this.time.addEvent({
             delay: 1000,
             callback: () => {
@@ -315,7 +307,6 @@ export class PlayScene extends Phaser.Scene {
 
     incScore() {
         this.pointSound.play()
-        this.score += 1;
-        this.scoreText.setText(`Score: ${this.score}`);
+        this.scoreControl.increaseScore();
     }
 }
