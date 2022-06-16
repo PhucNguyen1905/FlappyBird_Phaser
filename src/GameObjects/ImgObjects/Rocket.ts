@@ -2,6 +2,7 @@ import { Constants } from '../../Contants';
 import { IImageConstructor } from '../ConstructInterface';
 export class Rocket extends Phaser.GameObjects.Sprite {
     animKey: string;
+    isShooting: boolean = false;
     body!: Phaser.Physics.Arcade.Body;
 
     constructor(r: IImageConstructor) {
@@ -40,8 +41,15 @@ export class Rocket extends Phaser.GameObjects.Sprite {
 
     update(): void {
         if (this.x > Constants.CANVAS_W) {
-            this.destroy();
+            this.hide();
         }
+    }
+
+    hide() {
+        this.body.setVelocityX(0);
+        this.isShooting = false;
+        this.x = -200;
+        this.y = -200;
     }
 
 

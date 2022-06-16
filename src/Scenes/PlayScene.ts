@@ -1,4 +1,5 @@
 import { Constants } from '../Contants';
+import { RocketController } from '../Controller/RocketController';
 import { Background } from '../GameObjects/ImgObjects/Background';
 import { Bird } from '../GameObjects/ImgObjects/Bird';
 import { Coin } from '../GameObjects/ImgObjects/Coin';
@@ -19,7 +20,8 @@ export class PlayScene extends Phaser.Scene {
     enemy!: Enemy;
     coin!: Coin;
     pipes!: Phaser.GameObjects.Group;
-    rockets: Rocket[] = [];
+    rocControl!: RocketController;
+    // rockets: Rocket[] = [];
     score: number = 0;
     isFalling: boolean = false;
     isOver: boolean = false;
@@ -44,6 +46,7 @@ export class PlayScene extends Phaser.Scene {
         this.initBackground();
         this.initBird();
         this.initEnemy();
+        this.initrocControl();
         this.initCoin();
         this.initSounds();
         this.initGameConfig();
@@ -68,6 +71,9 @@ export class PlayScene extends Phaser.Scene {
     }
     initEnemy() {
         this.enemy = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
+    }
+    initrocControl() {
+        this.rocControl = new RocketController(this);
     }
     initSounds() {
         this.pointSound = new PointSound(this.sound);
@@ -126,22 +132,22 @@ export class PlayScene extends Phaser.Scene {
             this.incScore();
             this.coin.hide();
         });
-        this.physics.add.collider(this.rockets, this.pipes, (rocket: any) => {
+        this.physics.add.collider(this.rocControl.getRockets(), this.pipes, (rocket: any) => {
             let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
             this.strongHitSound.play();
-            rocket.destroy();
+            this.rocControl.rocketBoom(rocket);
         });
-        this.physics.add.collider(this.rockets, this.enemy, (rocket: any) => {
+        this.physics.add.collider(this.rocControl.getRockets(), this.enemy, (rocket: any) => {
             let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
             this.strongHitSound.play();
-            rocket.destroy();
+            this.rocControl.rocketBoom(rocket);
             this.enemy.hide();
             this.incScore();
         });
-        this.physics.add.collider(this.rockets, this.coin, (rocket: any) => {
+        this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
             let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
             this.strongHitSound.play();
-            rocket.destroy();
+            this.rocControl.rocketBoom(rocket);
             this.coin.hide();
         });
     }
@@ -190,7 +196,7 @@ export class PlayScene extends Phaser.Scene {
             this.bird.update(delta, this.isPaused);
             this.recylePipes();
             this.bg.update();
-            this.updateRockets();
+            this.rocControl.update();
             this.coin.update();
 
         } else if (this.isFalling) {
@@ -199,11 +205,6 @@ export class PlayScene extends Phaser.Scene {
             this.checkReachGround();
         } else {
             this.gameOver();
-        }
-    }
-    updateRockets() {
-        for (const rocket of this.rockets) {
-            rocket.update();
         }
     }
 
@@ -224,8 +225,9 @@ export class PlayScene extends Phaser.Scene {
     }
 
     shootRocket() {
-        let rocket = new Rocket({ scene: this, x: Constants.BIRD_START_X, y: this.bird.y, key: 'rocket_sprites' })
-        this.rockets.push(rocket)
+        if (!(this.isFalling || this.isOver)) {
+            this.rocControl.shootRocket(Constants.BIRD_START_X, this.bird.y);
+        }
     }
 
     checkGameStatus() {
