@@ -23,7 +23,6 @@ export class Bee extends Phaser.GameObjects.Sprite {
     }
     setUpPhysics() {
         this.scene.physics.world.enable(this);
-        this.body.setImmovable(true)
         // this.body.setCollideWorldBounds(true);
     }
 
