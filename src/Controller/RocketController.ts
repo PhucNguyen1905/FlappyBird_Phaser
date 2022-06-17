@@ -57,8 +57,10 @@ export class RocketController {
 
     startExplosion(x: number, y: number) {
         const expl = this.expls.getFirstDead(false, x - 10, y);
-        expl.active = true;
-        expl.boomBoom();
+        if (expl) {
+            expl.active = true;
+            expl.boomBoom();
+        }
     }
 
     shootRocket(x: number, y: number) {
