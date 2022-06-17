@@ -1,5 +1,5 @@
 import { IImageConstructor } from "../../ConstructInterface";
-export class Enemy extends Phaser.GameObjects.Sprite {
+export class Dragon extends Phaser.GameObjects.Sprite {
     animKey: string;
     body!: Phaser.Physics.Arcade.Body;
     isAppeared: boolean = false;

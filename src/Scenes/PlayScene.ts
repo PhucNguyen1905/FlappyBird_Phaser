@@ -2,27 +2,24 @@ import { Constants } from '../Contants';
 import { RocketController } from '../Controller/RocketController';
 import { ScoreController } from '../Controller/ScoreController';
 import { Background } from '../GameObjects/ImgObjects/Sprites/Background';
-import { Bee } from '../GameObjects/ImgObjects/Sprites/Bee';
 import { Bird } from '../GameObjects/ImgObjects/Sprites/Bird';
 import { Coin } from '../GameObjects/ImgObjects/Sprites/Coin';
-import { Enemy } from '../GameObjects/ImgObjects/Sprites/Enemy';
 import { Pipe } from '../GameObjects/ImgObjects/Images/Pipe';
 import { BgMusic } from '../GameObjects/Sounds/BgMusic';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
 import { FlapSound } from "../GameObjects/Sounds/FlapSound";
-import { PointSound } from "../GameObjects/Sounds/PointSound";
+import { EnemyController } from '../Controller/EnemyController';
 
 export class PlayScene extends Phaser.Scene {
     bg!: Background;
     bird!: Bird;
-    dragon!: Enemy;
-    bee!: Bee;
     coin!: Coin;
     pipes!: Phaser.GameObjects.Group;
 
     rocControl!: RocketController;
     scoreControl!: ScoreController;
+    enemyControl!: EnemyController;
 
     isFalling: boolean = false;
     isOver: boolean = false;
@@ -44,9 +41,9 @@ export class PlayScene extends Phaser.Scene {
     init() {
         this.initBackground();
         this.initBird();
-        this.initEnemy();
         this.initRocControl();
         this.initScoreControl();
+        this.initEnemyControl();
         this.initCoin();
         this.initSounds();
         this.initGameConfig();
@@ -68,9 +65,8 @@ export class PlayScene extends Phaser.Scene {
     initBird() {
         this.bird = new Bird({ scene: this, x: Constants.BIRD_START_X, y: Constants.BIRD_START_Y, key: 'bird_sprites' })
     }
-    initEnemy() {
-        this.dragon = new Enemy({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'enemy_sprites' })
-        this.bee = new Bee({ scene: this, x: 2000, y: Constants.CANVAS_H / 2, key: 'bee_sprites' })
+    initEnemyControl() {
+        this.enemyControl = new EnemyController(this);
     }
     initRocControl() {
         this.rocControl = new RocketController(this);
@@ -78,6 +74,7 @@ export class PlayScene extends Phaser.Scene {
     initScoreControl() {
         this.scoreControl = new ScoreController(this);
     }
+
     initSounds() {
         this.fallSound = new FallSound(this.sound);
         this.flapSound = new FlapSound(this.sound)
@@ -124,8 +121,7 @@ export class PlayScene extends Phaser.Scene {
     }
     createCollider() {
         this.physics.add.collider(this.bird, this.pipes, this.birdFalling, undefined, this);
-        this.physics.add.collider(this.bird, this.dragon, this.birdFalling, undefined, this);
-        this.physics.add.collider(this.bird, this.bee, this.birdFalling, undefined, this);
+        this.physics.add.collider(this.bird, this.enemyControl.getEnemy(), this.birdFalling, undefined, this);
         this.physics.add.overlap(this.bird, this.coin, () => {
             this.scoreControl.increaseScore(2);
             this.coin.hide();
@@ -133,15 +129,10 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.rocControl.getRockets(), this.pipes, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
         });
-        this.physics.add.collider(this.rocControl.getRockets(), this.dragon, (rocket: any) => {
+        this.physics.add.collider(this.rocControl.getRockets(), this.enemyControl.getEnemy(), (rocket: any, enemy: any) => {
             this.rocControl.rocketBoom(rocket);
-            this.dragon.hide();
+            this.enemyControl.hideEnemy(enemy);
             this.scoreControl.increaseScore(2);
-        });
-        this.physics.add.collider(this.rocControl.getRockets(), this.bee, (rocket: any) => {
-            this.rocControl.rocketBoom(rocket);
-            this.bee.hide();
-            this.scoreControl.increaseScore(3);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
@@ -200,7 +191,7 @@ export class PlayScene extends Phaser.Scene {
             this.bg.update();
             this.rocControl.update();
             this.coin.update();
-            this.bee.update()
+            this.enemyControl.update();
 
         } else if (this.isFalling) {
             this.bird.falling();
@@ -216,8 +207,9 @@ export class PlayScene extends Phaser.Scene {
         this.fallSound.play();
         this.isFalling = true;
         this.bird.setTint(0xD61C4E);
-        this.dragon.setDontMove();
-        this.bee.setDontMove();
+        // this.dragon.setDontMove();
+        // this.bee.setDontMove();
+        this.enemyControl.setDontMove();
         this.coin.setDontMove();
         this.bird.anims.stop();
         this.physics.world.disable(this.pipes)
@@ -266,13 +258,12 @@ export class PlayScene extends Phaser.Scene {
         let topPipeYPos = Phaser.Math.Between(20, Constants.CANVAS_H - spaceBetPipeY - 80);
         let spaceBetPipeX = Phaser.Math.Between(400, 500);
         let mostRightPipeX = this.getMostRightPipeX();
-
         // Generate enemy
         if (Math.random() > 0.3) {
-            this.dragon.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2);
+            this.enemyControl.genEnemy(mostRightPipeX + spaceBetPipeX, topPipeYPos + spaceBetPipeY / 2, 0);
         }
         if (Math.random() > 0.3 && this.scoreControl.score > 1) {
-            this.bee.genEnemy(mostRightPipeX + spaceBetPipeX / 2 + 10, Phaser.Math.Between(300, Constants.CANVAS_H - 300));
+            this.enemyControl.genEnemy(mostRightPipeX + spaceBetPipeX / 2 + 10, Phaser.Math.Between(300, Constants.CANVAS_H - 300,), 1);
         }
 
 
