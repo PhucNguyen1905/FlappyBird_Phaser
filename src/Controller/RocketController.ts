@@ -6,10 +6,11 @@ import { StrongHitSound } from "../GameObjects/Sounds/StrongHitSound";
 export class RocketController {
     curUsing: number = 0;
     maxNoRocket: number = 2;
-    rockets: Rocket[] = [];
-    expls: Exposion[] = [];
+    rockets!: Phaser.GameObjects.Group;
+    expls!: Phaser.GameObjects.Group;
     strongHitSound!: StrongHitSound;
     outOfRocket!: OutOfRocket;
+
     constructor(scene: Phaser.Scene) {
         this.createRockets(scene);
         this.createExplosions(scene);
@@ -17,23 +18,27 @@ export class RocketController {
     }
 
     createRockets(scene: Phaser.Scene) {
+        this.rockets = scene.add.group();
         for (let i = 0; i < this.maxNoRocket; i++) {
             let rocket = new Rocket({ scene: scene, x: -200, y: -200, key: 'rocket_sprites' })
             rocket.body.setVelocityX(0);
-            this.rockets.push(rocket)
+            rocket.active = false;
+            this.rockets.add(rocket)
         }
     }
 
     createExplosions(scene: Phaser.Scene) {
+        this.expls = scene.add.group();
         for (let i = 0; i < this.maxNoRocket; i++) {
             let expl = new Exposion({ scene: scene, x: -200, y: -200, key: 'explosion' })
-            this.expls.push(expl)
+            expl.active = false;
+            this.expls.add(expl)
         }
     }
+
     initSounds(scene: Phaser.Scene) {
         this.strongHitSound = new StrongHitSound(scene.sound)
         this.outOfRocket = new OutOfRocket(scene.sound);
-
     }
 
     getRockets() {
@@ -41,55 +46,37 @@ export class RocketController {
     }
 
     rocketBoom(rocket: Rocket) {
-        let i = 0;
-        for (const r of this.rockets) {
-            if (rocket == r) {
-                this.expls[i].boomBoom(rocket.x, rocket.y)
+        this.rockets.getChildren().forEach((r: any) => {
+            if (r == rocket) {
                 this.strongHitSound.play();
+                this.startExplosion(r.x, r.y)
                 r.hide();
-                this.decCurUsing();
-                break;
             }
-            i += 1;
-        }
+        })
+    }
+
+    startExplosion(x: number, y: number) {
+        const expl = this.expls.getFirstDead(false, x - 10, y);
+        expl.active = true;
+        expl.boomBoom();
     }
 
     shootRocket(x: number, y: number) {
-        if (this.curUsing < this.maxNoRocket) {
-            this.curUsing += 1;
-            for (const rocket of this.rockets) {
-                if (!rocket.isShooting) {
-                    rocket.x = x;
-                    rocket.y = y;
-                    rocket.isShooting = true;
-                    rocket.body.setGravityX(800);
-                    break;
-                }
-            }
+        if (this.rockets.countActive(true) < this.maxNoRocket) {
+            const rocket = this.rockets.getFirstDead(false, x, y);
+            rocket.active = true;
+            rocket.body.setGravityX(800);
         } else {
             this.outOfRocket.play();
         }
     }
+
     update() {
-        for (const rocket of this.rockets) {
-            if (rocket.isShooting) {
-                rocket.update();
+        this.rockets.getChildren().forEach((r: any) => {
+            if (r.active) {
+                r.update();
             }
-        }
-        let count = 0;
-        for (const rocket of this.rockets) {
-            if (rocket.isShooting) {
-                count += 1;
-            }
-        }
-        this.curUsing = count;
-
+        })
     }
-
-    decCurUsing() {
-        this.curUsing -= 1;
-        if (this.curUsing < 0) this.curUsing = 0;
-    }
-
 
 }
