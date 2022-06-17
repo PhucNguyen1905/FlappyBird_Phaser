@@ -22,7 +22,6 @@ export class Rocket extends Phaser.GameObjects.Sprite {
     setUpPhysics() {
         this.scene.physics.world.enable(this);
         this.body.setImmovable(true);
-        this.body.setVelocityX(300)
 
     }
 
@@ -47,6 +46,7 @@ export class Rocket extends Phaser.GameObjects.Sprite {
 
     hide() {
         this.body.setVelocityX(0);
+        this.body.setGravityX(0);
         this.isShooting = false;
         this.x = -200;
         this.y = -200;

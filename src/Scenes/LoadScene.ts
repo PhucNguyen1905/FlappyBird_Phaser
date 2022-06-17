@@ -95,6 +95,7 @@ export class LoadScene extends Phaser.Scene {
         this.load.audio('bgmusic', 'sounds/bgmusic.mp3');
         this.load.audio('start_music', 'sounds/start_music.mp3');
         this.load.audio('over_music', 'sounds/over_music.mp3');
+        this.load.audio('out_of_roc', 'sounds/out_of_roc.mp3');
 
     }
     create() {

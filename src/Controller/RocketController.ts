@@ -1,17 +1,19 @@
 import { Exposion } from "../GameObjects/ImgObjects/Sprites/Explosion";
 import { Rocket } from "../GameObjects/ImgObjects/Sprites/Rocket";
+import { OutOfRocket } from "../GameObjects/Sounds/OutOfRoc";
 import { StrongHitSound } from "../GameObjects/Sounds/StrongHitSound";
 
 export class RocketController {
     curUsing: number = 0;
-    maxNoRocket: number = 4;
+    maxNoRocket: number = 2;
     rockets: Rocket[] = [];
     expls: Exposion[] = [];
     strongHitSound!: StrongHitSound;
+    outOfRocket!: OutOfRocket;
     constructor(scene: Phaser.Scene) {
         this.createRockets(scene);
         this.createExplosions(scene);
-        this.strongHitSound = new StrongHitSound(scene.sound)
+        this.initSounds(scene);
     }
 
     createRockets(scene: Phaser.Scene) {
@@ -27,6 +29,11 @@ export class RocketController {
             let expl = new Exposion({ scene: scene, x: -200, y: -200, key: 'explosion' })
             this.expls.push(expl)
         }
+    }
+    initSounds(scene: Phaser.Scene) {
+        this.strongHitSound = new StrongHitSound(scene.sound)
+        this.outOfRocket = new OutOfRocket(scene.sound);
+
     }
 
     getRockets() {
@@ -55,12 +62,12 @@ export class RocketController {
                     rocket.x = x;
                     rocket.y = y;
                     rocket.isShooting = true;
-                    rocket.body.setVelocityX(300);
+                    rocket.body.setGravityX(800);
                     break;
                 }
             }
         } else {
-            console.log('Out of rocket')
+            this.outOfRocket.play();
         }
     }
     update() {

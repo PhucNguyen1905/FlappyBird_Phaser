@@ -29,7 +29,6 @@ export class PlayScene extends Phaser.Scene {
     isPaused: boolean = false;
     countDown: number = 3;
 
-    pointSound!: PointSound;
     fallSound!: FallSound;
     flapSound!: FlapSound;
     clickSound!: ClickSound;
@@ -80,7 +79,6 @@ export class PlayScene extends Phaser.Scene {
         this.scoreControl = new ScoreController(this);
     }
     initSounds() {
-        this.pointSound = new PointSound(this.sound);
         this.fallSound = new FallSound(this.sound);
         this.flapSound = new FlapSound(this.sound)
         this.clickSound = new ClickSound(this.sound)
@@ -129,7 +127,7 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bird, this.dragon, this.birdFalling, undefined, this);
         this.physics.add.collider(this.bird, this.bee, this.birdFalling, undefined, this);
         this.physics.add.overlap(this.bird, this.coin, () => {
-            this.incScore(2);
+            this.scoreControl.increaseScore(2);
             this.coin.hide();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.pipes, (rocket: any) => {
@@ -138,12 +136,12 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.rocControl.getRockets(), this.dragon, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
             this.dragon.hide();
-            this.incScore(2);
+            this.scoreControl.increaseScore(2);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.bee, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
             this.bee.hide();
-            this.incScore(3);
+            this.scoreControl.increaseScore(3);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
@@ -255,7 +253,7 @@ export class PlayScene extends Phaser.Scene {
                 if (pair.length == 2) {
                     this.genPipePos(pair[0], pair[1]);
                     pair = [];
-                    this.incScore(1);
+                    this.scoreControl.increaseScore(1);
                     this.scoreControl.saveBestScore();
                 }
             }
@@ -319,8 +317,4 @@ export class PlayScene extends Phaser.Scene {
         })
     }
 
-    incScore(point: number) {
-        this.pointSound.play()
-        this.scoreControl.increaseScore(point);
-    }
 }

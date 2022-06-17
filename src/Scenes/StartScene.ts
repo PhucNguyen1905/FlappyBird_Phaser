@@ -47,6 +47,11 @@ export class StartScene extends Phaser.Scene {
             this.startMusic.stop();
             this.scene.start('PlayScene')
         })
+        this.input.keyboard.on('keydown-SPACE', () => {
+            this.clickSound.play();
+            this.startMusic.stop();
+            this.scene.start('PlayScene')
+        })
         this.playBtn.on('pointerover', () => {
             this.mouseOverSound.play();
         })
