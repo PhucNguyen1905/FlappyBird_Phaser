@@ -129,7 +129,7 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bird, this.dragon, this.birdFalling, undefined, this);
         this.physics.add.collider(this.bird, this.bee, this.birdFalling, undefined, this);
         this.physics.add.overlap(this.bird, this.coin, () => {
-            this.incScore();
+            this.incScore(2);
             this.coin.hide();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.pipes, (rocket: any) => {
@@ -138,12 +138,12 @@ export class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.rocControl.getRockets(), this.dragon, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
             this.dragon.hide();
-            this.incScore();
+            this.incScore(2);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.bee, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
             this.bee.hide();
-            this.incScore();
+            this.incScore(3);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
             this.rocControl.rocketBoom(rocket);
@@ -255,7 +255,7 @@ export class PlayScene extends Phaser.Scene {
                 if (pair.length == 2) {
                     this.genPipePos(pair[0], pair[1]);
                     pair = [];
-                    this.incScore();
+                    this.incScore(1);
                     this.scoreControl.saveBestScore();
                 }
             }
@@ -319,8 +319,8 @@ export class PlayScene extends Phaser.Scene {
         })
     }
 
-    incScore() {
+    incScore(point: number) {
         this.pointSound.play()
-        this.scoreControl.increaseScore();
+        this.scoreControl.increaseScore(point);
     }
 }

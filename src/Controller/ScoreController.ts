@@ -20,8 +20,8 @@ export class ScoreController {
         this.bestText = new ScoreText({ scene: scene, x: 16, y: 50, content: `Best Score: ${bestScore || 0}`, style: this.fontStyle })
     }
 
-    increaseScore() {
-        this.score += 1;
+    increaseScore(point: number) {
+        this.score += point;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
