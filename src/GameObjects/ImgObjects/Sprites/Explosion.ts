@@ -14,10 +14,7 @@ export class Exposion extends Phaser.GameObjects.Sprite {
         this.createAnims(r.key);
 
         this.scene.add.existing(this);
-        this.play(this.animKey);
-        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-            this.destroy();
-        })
+
     }
 
     createAnims(key: string) {
@@ -30,6 +27,18 @@ export class Exposion extends Phaser.GameObjects.Sprite {
             frameRate: 20,
             repeat: 0
         })
+    }
+    boomBoom(x: number, y: number) {
+        this.x = x - 10;
+        this.y = y;
+        this.play(this.animKey);
+        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+            this.hide();
+        })
+    }
+    hide() {
+        this.x = -200;
+        this.y = -200;
     }
 
 

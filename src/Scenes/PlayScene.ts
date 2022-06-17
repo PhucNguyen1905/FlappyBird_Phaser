@@ -6,14 +6,12 @@ import { Bee } from '../GameObjects/ImgObjects/Sprites/Bee';
 import { Bird } from '../GameObjects/ImgObjects/Sprites/Bird';
 import { Coin } from '../GameObjects/ImgObjects/Sprites/Coin';
 import { Enemy } from '../GameObjects/ImgObjects/Sprites/Enemy';
-import { Exposion } from '../GameObjects/ImgObjects/Sprites/Explosion';
 import { Pipe } from '../GameObjects/ImgObjects/Images/Pipe';
 import { BgMusic } from '../GameObjects/Sounds/BgMusic';
 import { ClickSound } from "../GameObjects/Sounds/ClickSound";
 import { FallSound } from "../GameObjects/Sounds/FallSound";
 import { FlapSound } from "../GameObjects/Sounds/FlapSound";
 import { PointSound } from "../GameObjects/Sounds/PointSound";
-import { StrongHitSound } from '../GameObjects/Sounds/StrongHitSound';
 
 export class PlayScene extends Phaser.Scene {
     bg!: Background;
@@ -35,7 +33,6 @@ export class PlayScene extends Phaser.Scene {
     fallSound!: FallSound;
     flapSound!: FlapSound;
     clickSound!: ClickSound;
-    strongHitSound!: StrongHitSound;
     bgMusic!: BgMusic;
 
     countDownText!: Phaser.GameObjects.Text;
@@ -87,7 +84,6 @@ export class PlayScene extends Phaser.Scene {
         this.fallSound = new FallSound(this.sound);
         this.flapSound = new FlapSound(this.sound)
         this.clickSound = new ClickSound(this.sound)
-        this.strongHitSound = new StrongHitSound(this.sound)
         this.bgMusic = new BgMusic(this.sound);
         this.bgMusic.loop = true;
         this.bgMusic.play();
@@ -137,27 +133,19 @@ export class PlayScene extends Phaser.Scene {
             this.coin.hide();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.pipes, (rocket: any) => {
-            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
-            this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.dragon, (rocket: any) => {
-            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
-            this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
             this.dragon.hide();
             this.incScore();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.bee, (rocket: any) => {
-            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
-            this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
             this.bee.hide();
             this.incScore();
         });
         this.physics.add.collider(this.rocControl.getRockets(), this.coin, (rocket: any) => {
-            let expl = new Exposion({ scene: this, x: rocket.x, y: rocket.y, key: 'explosion' })
-            this.strongHitSound.play();
             this.rocControl.rocketBoom(rocket);
             this.coin.hide();
         });

@@ -1,11 +1,17 @@
+import { Exposion } from "../GameObjects/ImgObjects/Sprites/Explosion";
 import { Rocket } from "../GameObjects/ImgObjects/Sprites/Rocket";
+import { StrongHitSound } from "../GameObjects/Sounds/StrongHitSound";
 
 export class RocketController {
     curUsing: number = 0;
     maxNoRocket: number = 4;
     rockets: Rocket[] = [];
+    expls: Exposion[] = [];
+    strongHitSound!: StrongHitSound;
     constructor(scene: Phaser.Scene) {
-        this.createRockets(scene)
+        this.createRockets(scene);
+        this.createExplosions(scene);
+        this.strongHitSound = new StrongHitSound(scene.sound)
     }
 
     createRockets(scene: Phaser.Scene) {
@@ -16,18 +22,28 @@ export class RocketController {
         }
     }
 
+    createExplosions(scene: Phaser.Scene) {
+        for (let i = 0; i < this.maxNoRocket; i++) {
+            let expl = new Exposion({ scene: scene, x: -200, y: -200, key: 'explosion' })
+            this.expls.push(expl)
+        }
+    }
+
     getRockets() {
         return this.rockets;
     }
 
     rocketBoom(rocket: Rocket) {
-        // Modify Rocket.ts to reset original pos
+        let i = 0;
         for (const r of this.rockets) {
             if (rocket == r) {
+                this.expls[i].boomBoom(rocket.x, rocket.y)
+                this.strongHitSound.play();
                 r.hide();
                 this.decCurUsing();
                 break;
             }
+            i += 1;
         }
     }
 
